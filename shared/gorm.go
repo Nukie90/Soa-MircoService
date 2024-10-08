@@ -22,20 +22,19 @@ func NewDatabase(computeID, password, dbName string) *Database {
 	}
 }
 
-func (d *Database) PostgresConnection(db *gorm.DB) (*gorm.DB, error) {
-	dsn := fmt.Sprintf("postgresql://virtual_banking_db_owner:%s@%s.ap-southeast-1.aws.neon.tech/%s?sslmode=require", d.ComputeID, d.Password, d.DBName)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+func (d *Database) PostgresConnection() (*gorm.DB, error) {
+	dsn := fmt.Sprintf("postgresql://virtual_banking_db_owner:%s@%s.ap-southeast-1.aws.neon.tech/%s?sslmode=require", d.Password, d.ComputeID, d.DBName)
+	conn, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatal(err)
-		return nil, err
-	}
-	fmt.Println("Connected to database")
-
-	err = db.AutoMigrate(&entity.Account{}, &entity.User{})
-	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error connecting to database: %v", err)
 		return nil, err
 	}
 
-	return db, nil
+	err = conn.AutoMigrate(&entity.User{}, &entity.Account{})
+	if err != nil {
+		log.Fatalf("Error migrating database: %v", err)
+		return nil, err
+	}
+
+	return conn, nil
 }
