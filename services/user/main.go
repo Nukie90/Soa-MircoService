@@ -16,10 +16,10 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 	fiberSwagger "github.com/swaggo/fiber-swagger"
+	_ "microservice/services/user/docs"
+	"microservice/services/user/logic"
+	"microservice/services/user/route"
 	"microservice/shared"
-	_ "microservice/user/docs"
-	"microservice/user/logic"
-	"microservice/user/route"
 	"os"
 )
 

@@ -5,8 +5,8 @@ import (
 	"github.com/golang-jwt/jwt"
 	"gorm.io/gorm"
 	"microservice/entity"
+	"microservice/services/user/model"
 	"microservice/shared"
-	"microservice/user/model"
 	"os"
 	"time"
 )

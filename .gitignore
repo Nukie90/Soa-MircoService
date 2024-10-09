@@ -13,5 +13,5 @@
 *.so
 *.dylib
 
-/user/tmp
+/services/user/tmp
 

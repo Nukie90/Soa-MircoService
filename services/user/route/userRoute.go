@@ -3,8 +3,8 @@ package route
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
+	"microservice/services/user/logic"
 	"microservice/shared"
-	"microservice/user/logic"
 )
 
 type UserRoute struct {
