@@ -12,9 +12,9 @@ import (
 
 type Account struct {
 	ID        string    `gorm:"primaryKey"`
-	UserID    string    `gorm:"not null"`
-	User      User      `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
-	Type      string    `gorm:"not null"`
+	UserID string `gorm:"not null"`
+	User   User   `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	Type   string `gorm:"not null"`
 	Balance   float64   `gorm:"not null"`
 	Pin       string    `gorm:"not null"`
 	CreatedAt time.Time `gorm:"autoCreateTime"`

@@ -7,7 +7,7 @@
 // @contact.email	nukie.nxk@gmail.com
 // @license.name	Apache 2.0
 // @license.url	http://www.apache.org/licenses/LICENSE-2.0.html
-// @host			localhost:3100
+// @host			127.0.0.1:3100
 // @BasePath		/api/v1
 package main
 
@@ -18,6 +18,8 @@ import (
 	fiberSwagger "github.com/swaggo/fiber-swagger"
 	"microservice/shared"
 	_ "microservice/user/docs"
+	"microservice/user/logic"
+	"microservice/user/route"
 	"os"
 )
 
@@ -30,10 +32,6 @@ func NewApp() *App {
 }
 
 func (a *App) StartApp() error {
-	err := godotenv.Load("../env/.env")
-	if err != nil {
-		return err
-	}
 
 	computeID := os.Getenv("DB_COMPUTE_ID")
 	password := os.Getenv("DB_PASSWORD")
@@ -43,12 +41,15 @@ func (a *App) StartApp() error {
 
 	db := shared.NewDatabase(computeID, password, dbName)
 
-	_, err = db.PostgresConnection()
+	newDB, err := db.PostgresConnection()
 	if err != nil {
 		return err
 	}
+	userlogic := logic.NewUserService(newDB)
 
 	a.Get("swagger/*", fiberSwagger.WrapHandler)
+
+	route.NewUserRoute(userlogic).SetupUserRoute(a.App)
 
 	err = a.Listen(":3100")
 	if err != nil {
@@ -59,8 +60,13 @@ func (a *App) StartApp() error {
 }
 
 func main() {
+	err := godotenv.Load("../env/.env")
+	if err != nil {
+		panic(err)
+	}
+
 	app := NewApp()
-	err := app.StartApp()
+	err = app.StartApp()
 	if err != nil {
 		panic(err)
 	}

@@ -5,7 +5,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
-	"microservice/db/entity"
+	entity2 "microservice/entity"
 )
 
 type Database struct {
@@ -30,7 +30,7 @@ func (d *Database) PostgresConnection() (*gorm.DB, error) {
 		return nil, err
 	}
 
-	err = conn.AutoMigrate(&entity.User{}, &entity.Account{})
+	err = conn.AutoMigrate(&entity2.User{}, &entity2.Account{})
 	if err != nil {
 		log.Fatalf("Error migrating database: %v", err)
 		return nil, err
