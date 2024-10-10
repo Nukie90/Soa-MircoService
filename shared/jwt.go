@@ -7,7 +7,8 @@ import (
 )
 
 func AuthenticateUser(c *fiber.Ctx) error {
-	cookie := c.Cookies("jwt")
+	cookie := c.Cookies("Authorization")
+	//fmt.Println(cookie)
 	if cookie == "" {
 		return c.Status(401).JSON(fiber.Map{"error": "Missing token"})
 	}

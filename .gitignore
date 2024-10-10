@@ -14,4 +14,4 @@
 *.dylib
 
 /services/user/tmp
-
+/services/gateway/tmp
