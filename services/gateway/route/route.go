@@ -18,8 +18,15 @@ func SetupRoute(app *fiber.App) {
 		}
 		users := v1.Group("/users", shared.AuthenticateUser)
 		{
-			users.Get("/", logic.ForwardGetAllUser)
-			users.Get("/:id", logic.ForwardGetUserByID)
+			users.Get("/all", logic.ForwardGetAllUser)
+			users.Get("/me", logic.ForwardGetMe)
+			users.Get("/all/:id", logic.ForwardGetUserByID)
+		}
+		account := v1.Group("/account", shared.AuthenticateUser)
+		{
+			account.Get("/", logic.ForwardGetAllAccount)
+			account.Post("/", logic.ForwardCreateAccount)
+			account.Get("/:id", logic.ForwardGetAccountByID)
 		}
 	}
 

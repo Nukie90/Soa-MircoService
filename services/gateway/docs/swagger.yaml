@@ -1,5 +1,14 @@
 basePath: /api/v1
 definitions:
+  model.CreateAccount:
+    properties:
+      balance:
+        type: number
+      pin:
+        type: string
+      type:
+        type: string
+    type: object
   model.Login:
     properties:
       id:
@@ -41,6 +50,44 @@ info:
   title: API Gateway Service
   version: "1.0"
 paths:
+  /account/:
+    get:
+      consumes:
+      - application/json
+      description: Forward get all account request to account service
+      produces:
+      - application/json
+      responses: {}
+      summary: Forward get all account request to account service
+      tags:
+      - account
+    post:
+      consumes:
+      - application/json
+      description: Forward create account request to account service
+      parameters:
+      - description: Account information
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateAccount'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Account created successfully
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Forward create account request to account service
+      tags:
+      - account
   /auth/login:
     post:
       consumes:
@@ -112,7 +159,7 @@ paths:
       summary: Get token
       tags:
       - auth
-  /users:
+  /users/all:
     get:
       consumes:
       - application/json
@@ -131,7 +178,7 @@ paths:
       summary: Forward get all users request to user service
       tags:
       - user
-  /users/{id}:
+  /users/all/{id}:
     get:
       consumes:
       - application/json
@@ -154,6 +201,27 @@ paths:
           schema:
             type: string
       summary: Forward get user by ID request to user service
+      tags:
+      - user
+  /users/me:
+    get:
+      consumes:
+      - application/json
+      description: Forward get me request to user service
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Forward get me request to user service
       tags:
       - user
 swagger: "2.0"

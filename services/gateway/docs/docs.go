@@ -24,6 +24,65 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/account/": {
+            "get": {
+                "description": "Forward get all account request to account service",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "account"
+                ],
+                "summary": "Forward get all account request to account service",
+                "responses": {}
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Forward create account request to account service",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "account"
+                ],
+                "summary": "Forward create account request to account service",
+                "parameters": [
+                    {
+                        "description": "Account information",
+                        "name": "account",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.CreateAccount"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Account created successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/login": {
             "post": {
                 "description": "Forward login request to user service",
@@ -133,7 +192,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/users": {
+        "/users/all": {
             "get": {
                 "description": "Forward get all users request to user service",
                 "consumes": [
@@ -162,7 +221,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/users/{id}": {
+        "/users/all/{id}": {
             "get": {
                 "description": "Forward get user by ID request to user service",
                 "consumes": [
@@ -199,9 +258,57 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/users/me": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Forward get me request to user service",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Forward get me request to user service",
+                "responses": {
+                    "200": {
+                        "description": "User",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "model.CreateAccount": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "type": "number"
+                },
+                "pin": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
         "model.Login": {
             "type": "object",
             "properties": {

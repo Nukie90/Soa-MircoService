@@ -13,8 +13,7 @@ import (
 )
 
 type UserService struct {
-	db     *gorm.DB
-	secret string
+	db *gorm.DB
 }
 
 func NewUserService(db *gorm.DB) *UserService {
@@ -88,7 +87,7 @@ func (us *UserService) SignUp(ctx *fiber.Ctx) error {
 //	@Tags			user
 //	@Accept			json
 //	@Produce		json
-//	@Router			/users [get]
+//	@Router			/users/all [get]
 func (us *UserService) GetAllUser(ctx *fiber.Ctx) error {
 	var users []entity.User
 	if err := us.db.Find(&users).Error; err != nil {
@@ -185,7 +184,7 @@ func (us *UserService) Login(ctx *fiber.Ctx) error {
 //	@Accept			json
 //	@Produce		json
 //	@Param			id	path	string	true	"User ID"
-//	@Router			/users/{id} [get]
+//	@Router			/users/all/{id} [get]
 func (us *UserService) GetUserByID(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
 	var user entity.User
@@ -211,7 +210,6 @@ func (us *UserService) GetUserByID(ctx *fiber.Ctx) error {
 //	@Tags			user
 //	@Accept			json
 //	@Produce		json
-//	@Security		Bearer
 //	@Router			/users/me [get]
 func (us *UserService) GetMe(ctx *fiber.Ctx) error {
 	tokenString := ctx.Get("Authorization")

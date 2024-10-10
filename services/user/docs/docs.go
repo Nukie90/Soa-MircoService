@@ -110,7 +110,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/users": {
+        "/users/all": {
             "get": {
                 "description": "Get all users",
                 "consumes": [
@@ -126,28 +126,7 @@ const docTemplate = `{
                 "responses": {}
             }
         },
-        "/users/me": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "description": "Get user by token",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "user"
-                ],
-                "summary": "Get user by token",
-                "responses": {}
-            }
-        },
-        "/users/{id}": {
+        "/users/all/{id}": {
             "get": {
                 "description": "Get user by ID",
                 "consumes": [
@@ -169,6 +148,22 @@ const docTemplate = `{
                         "required": true
                     }
                 ],
+                "responses": {}
+            }
+        },
+        "/users/me": {
+            "get": {
+                "description": "Get user by token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Get user by token",
                 "responses": {}
             }
         }

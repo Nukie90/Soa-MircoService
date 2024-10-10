@@ -25,8 +25,8 @@ func (ur *UserRoute) SetupUserRoute(app *fiber.App) {
 	}
 	users := v1.Group("/users")
 	{
-		users.Get("/", ur.userLogic.GetAllUser)
-		users.Get("/:id", ur.userLogic.GetUserByID)
+		users.Get("/all", ur.userLogic.GetAllUser)
 		users.Get("/me", ur.userLogic.GetMe)
+		users.Get("/all/:id", ur.userLogic.GetUserByID)
 	}
 }

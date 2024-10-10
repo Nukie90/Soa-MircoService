@@ -119,7 +119,7 @@ func GetToken(ctx *fiber.Ctx) error {
 // @Success		200		{string} model.UserModel	"Users"
 // @Failure		400		{string}	string		"Bad request"
 //
-// @Router			/users [get]
+// @Router			/users/all [get]
 func ForwardGetAllUser(ctx *fiber.Ctx) error {
 	fmt.Println("call all user")
 	resp, err := http.Get("http://localhost:3100/api/v1/users")
@@ -154,7 +154,7 @@ func ForwardGetAllUser(ctx *fiber.Ctx) error {
 // @Success		200		{string} model.UserModel	"User"
 // @Failure		400		{string}	string		"Bad request"
 //
-// @Router			/users/{id} [get]
+// @Router			/users/all/{id} [get]
 func ForwardGetUserByID(ctx *fiber.Ctx) error {
 	resp, err := http.Get("http://localhost:3100/api/v1/users/" + ctx.Params("id"))
 	if err != nil {
@@ -175,4 +175,47 @@ func ForwardGetUserByID(ctx *fiber.Ctx) error {
 	ctx.Status(resp.StatusCode)
 	ctx.Set("Content-Type", resp.Header.Get("Content-Type"))
 	return ctx.Send(respBody)
+}
+
+// ForwardGetMe godoc
+//
+// @Summary		Forward get me request to user service
+// @Description	Forward get me request to user service
+// @Tags			user
+// @Accept			json
+// @Produce		json
+// @Security		Bearer
+// @Success		200		{string} model.UserModel	"User"
+// @Failure		400		{string}	string		"Bad request"
+//
+// @Router			/users/me [get]
+func ForwardGetMe(ctx *fiber.Ctx) error {
+	fmt.Println("call me")
+	cookie := ctx.Cookies("Authorization")
+
+	userService := &http.Client{}
+	req, err := http.NewRequest("GET", "http://localhost:3100/api/v1/users/me", nil)
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Authorization", cookie)
+
+	resp, err := userService.Do(req)
+	if err != nil {
+		return err
+	}
+
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode != 200 {
+		return ctx.Status(resp.StatusCode).Send(body)
+	}
+
+	return ctx.Status(resp.StatusCode).Send(body)
 }
