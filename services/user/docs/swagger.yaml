@@ -97,7 +97,7 @@ paths:
       summary: Create a new user
       tags:
       - auth
-  /users:
+  /users/all:
     get:
       consumes:
       - application/json
@@ -108,7 +108,7 @@ paths:
       summary: Get all users
       tags:
       - user
-  /users/{id}:
+  /users/all/{id}:
     get:
       consumes:
       - application/json
@@ -133,8 +133,6 @@ paths:
       produces:
       - application/json
       responses: {}
-      security:
-      - Bearer: []
       summary: Get user by token
       tags:
       - user
