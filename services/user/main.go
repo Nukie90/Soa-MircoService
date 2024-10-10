@@ -14,6 +14,8 @@ package main
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/joho/godotenv"
 	fiberSwagger "github.com/swaggo/fiber-swagger"
 	_ "microservice/services/user/docs"
@@ -47,6 +49,12 @@ func (a *App) StartApp() error {
 	}
 	userlogic := logic.NewUserService(newDB)
 
+	a.Use(cors.New(cors.Config{
+		AllowCredentials: true,
+		AllowOrigins:     "http://127.0.0.1:3000, http://localhost:3000",
+	}))
+
+	a.Use(logger.New())
 	a.Get("swagger/*", fiberSwagger.WrapHandler)
 
 	route.NewUserRoute(userlogic).SetupUserRoute(a.App)
@@ -60,7 +68,7 @@ func (a *App) StartApp() error {
 }
 
 func main() {
-	err := godotenv.Load("../env/.env")
+	err := godotenv.Load("../../env/.env")
 	if err != nil {
 		panic(err)
 	}

@@ -4,7 +4,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"microservice/services/user/logic"
-	"microservice/shared"
 )
 
 type UserRoute struct {
@@ -24,7 +23,7 @@ func (ur *UserRoute) SetupUserRoute(app *fiber.App) {
 		auth.Post("/login", ur.userLogic.Login)
 		auth.Post("/signup", ur.userLogic.SignUp)
 	}
-	users := v1.Group("/users", shared.AuthenticateUser)
+	users := v1.Group("/users")
 	{
 		users.Get("/", ur.userLogic.GetAllUser)
 		users.Get("/:id", ur.userLogic.GetUserByID)

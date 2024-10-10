@@ -1,0 +1,134 @@
+basePath: /api/v1
+definitions:
+  model.Login:
+    properties:
+      id:
+        example: "111"
+        type: string
+      password:
+        example: password
+        type: string
+    type: object
+  model.SignUp:
+    properties:
+      address:
+        example: Bangkok
+        type: string
+      birth_date:
+        example: "2004-01-02"
+        type: string
+      id:
+        example: "111"
+        type: string
+      name:
+        example: John Doe
+        type: string
+      password:
+        example: password
+        type: string
+    type: object
+host: 127.0.0.1:3000
+info:
+  contact:
+    email: nukie.nxk@gmail.com
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is the API Gateway service API documentation
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: API Gateway Service
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Forward login request to user service
+      parameters:
+      - description: User information
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/model.Login'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User logged in successfully
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+      summary: Forward login request to user service
+      tags:
+      - auth
+  /auth/signup:
+    post:
+      consumes:
+      - application/json
+      description: Forward signup request to user service
+      parameters:
+      - description: User information
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/model.SignUp'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User created successfully
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+      summary: Forward signup request to user service
+      tags:
+      - auth
+  /auth/token:
+    get:
+      consumes:
+      - application/json
+      description: Get token from header
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Token
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+      summary: Get token
+      tags:
+      - auth
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: Forward get all users request to user service
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Users
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+      summary: Forward get all users request to user service
+      tags:
+      - user
+swagger: "2.0"

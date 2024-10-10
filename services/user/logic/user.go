@@ -165,7 +165,8 @@ func (us *UserService) Login(ctx *fiber.Ctx) error {
 		Expires: time.Now().Add(time.Hour * 24),
 	})
 
-	ctx.Locals("userId", user.ID)
+	//set auth token from user service to gateway in header
+	ctx.Set("Authorization", tokenString)
 
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
 		"token": tokenString,
