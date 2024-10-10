@@ -1,6 +1,7 @@
 package logic
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt"
 	"gorm.io/gorm"
@@ -168,6 +169,9 @@ func (us *UserService) Login(ctx *fiber.Ctx) error {
 	//set auth token from user service to gateway in header
 	ctx.Set("Authorization", tokenString)
 
+	//set local
+	ctx.Locals("userId", user.ID)
+
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
 		"token": tokenString,
 	})
@@ -210,11 +214,31 @@ func (us *UserService) GetUserByID(ctx *fiber.Ctx) error {
 //	@Security		Bearer
 //	@Router			/users/me [get]
 func (us *UserService) GetMe(ctx *fiber.Ctx) error {
-	userId := ctx.Locals("userId").(string)
+	tokenString := ctx.Get("Authorization")
+	if tokenString == "" {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "No token from gateway",
+		})
+	}
+
+	fmt.Println("Token: ", tokenString)
+
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv("JWT_SECRET")), nil
+	})
+	if err != nil {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Invalid token",
+		})
+	}
+
+	claims := token.Claims.(jwt.MapClaims)
+	userId := claims["id"].(string)
+
 	var user entity.User
 	if err := us.db.Where("id = ?", userId).First(&user).Error; err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": err.Error(),
+			"error1": err.Error(),
 		})
 	}
 

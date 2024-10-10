@@ -2,6 +2,7 @@ package logic
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"io"
 	"net/http"
@@ -55,6 +56,7 @@ func ForwardSignup(ctx *fiber.Ctx) error {
 //
 // @Router			/auth/login [post]
 func ForwardLogin(ctx *fiber.Ctx) error {
+	fmt.Println("call login")
 	body := bytes.NewReader(ctx.Body())
 	resp, err := http.Post("http://localhost:3100/api/v1/auth/login", "application/json", body)
 	if err != nil {
@@ -119,7 +121,42 @@ func GetToken(ctx *fiber.Ctx) error {
 //
 // @Router			/users [get]
 func ForwardGetAllUser(ctx *fiber.Ctx) error {
+	fmt.Println("call all user")
 	resp, err := http.Get("http://localhost:3100/api/v1/users")
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+	defer resp.Body.Close()
+
+	// Return response from user service
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	ctx.Status(resp.StatusCode)
+	ctx.Set("Content-Type", resp.Header.Get("Content-Type"))
+	return ctx.Send(respBody)
+}
+
+// ForwardGetUserByID godoc
+//
+// @Summary		Forward get user by ID request to user service
+// @Description	Forward get user by ID request to user service
+// @Tags			user
+// @Accept			json
+// @Produce		json
+// @Param			id	path	string	true	"User ID"
+// @Success		200		{string} model.UserModel	"User"
+// @Failure		400		{string}	string		"Bad request"
+//
+// @Router			/users/{id} [get]
+func ForwardGetUserByID(ctx *fiber.Ctx) error {
+	resp, err := http.Get("http://localhost:3100/api/v1/users/" + ctx.Params("id"))
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),

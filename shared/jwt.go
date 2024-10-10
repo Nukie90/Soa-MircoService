@@ -1,7 +1,6 @@
 package shared
 
 import (
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt"
 	"os"
@@ -9,7 +8,7 @@ import (
 
 func AuthenticateUser(c *fiber.Ctx) error {
 	cookie := c.Cookies("Authorization")
-	fmt.Println(cookie)
+	//fmt.Println(cookie)
 	if cookie == "" {
 		return c.Status(401).JSON(fiber.Map{"error": "Missing token"})
 	}

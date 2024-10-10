@@ -19,8 +19,7 @@ func SetupRoute(app *fiber.App) {
 		users := v1.Group("/users", shared.AuthenticateUser)
 		{
 			users.Get("/", logic.ForwardGetAllUser)
-			//users.Get("/:id", logic.ForwardGetUserByID)
-			//users.Get("/me", logic.ForwardGetMe)
+			users.Get("/:id", logic.ForwardGetUserByID)
 		}
 	}
 

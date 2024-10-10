@@ -131,4 +131,29 @@ paths:
       summary: Forward get all users request to user service
       tags:
       - user
+  /users/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Forward get user by ID request to user service
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+      summary: Forward get user by ID request to user service
+      tags:
+      - user
 swagger: "2.0"
