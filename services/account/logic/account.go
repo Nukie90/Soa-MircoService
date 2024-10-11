@@ -2,13 +2,14 @@ package logic
 
 import (
 	"fmt"
-	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt"
-	"gorm.io/gorm"
 	"microservice/entity"
 	"microservice/services/account/model"
 	"microservice/shared"
 	"os"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt"
+	"gorm.io/gorm"
 )
 
 type AccountService struct {
@@ -145,6 +146,22 @@ func (as *AccountService) CreateAccount(ctx *fiber.Ctx) error {
 	if result.Error != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": result.Error.Error(),
+		})
+	}
+
+	// Connect to NATS
+	nc, err := shared.ConnectNATS()
+	if err != nil {
+		return err
+	}
+	defer nc.Close()
+
+	// Publish event to NATS
+	eventData := fmt.Sprintf(`{"account_id":"%s", "user_id":"%s", "type":"%s", "balance":%.2f}`, account.ID, account.UserID, account.Type, account.Balance)
+	err = nc.Publish("account.created", []byte(eventData))
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
 		})
 	}
 

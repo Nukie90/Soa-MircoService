@@ -37,7 +37,7 @@ func newApp() *app {
 func (a *app) startApp() error {
 	computeID := os.Getenv("DB_COMPUTE_ID")
 	password := os.Getenv("DB_PASSWORD")
-	dbName := os.Getenv("DB_NAME")
+	dbName := os.Getenv("PAYMENT_NAME")
 
 	fmt.Println("Starting payment service")
 
@@ -67,9 +67,26 @@ func (a *app) startApp() error {
 }
 
 func main() {
-	if err := godotenv.Load("../../env/.env"); err != nil {
+	if err := godotenv.Load(); err != nil {
 		fmt.Println("No .env file found")
 	}
+
+	nc, err := shared.ConnectNATS()
+	if err != nil {
+		return
+	}
+	defer nc.Close()
+
+	// Initialize UserService with the DB connection
+	db := shared.NewDatabase(os.Getenv("DB_COMPUTE_ID"), os.Getenv("DB_PASSWORD"), os.Getenv("PAYMENT_NAME"))
+	newDB, err := db.PostgresConnection()
+	if err != nil {
+		return
+	}
+	userService := logic.NewPaymentService(newDB)
+
+	// Subscribe to user.created events
+	userService.SubscribeToUserCreated(nc)
 
 	app := newApp()
 	if err := app.startApp(); err != nil {

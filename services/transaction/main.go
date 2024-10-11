@@ -13,15 +13,16 @@ package main
 
 import (
 	"fmt"
+	"microservice/services/transaction/logic"
+	"microservice/services/transaction/route"
+	"microservice/shared"
+	"os"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/joho/godotenv"
 	fiberSwagger "github.com/swaggo/fiber-swagger"
-	"microservice/services/transaction/logic"
-	"microservice/services/transaction/route"
-	"microservice/shared"
-	"os"
 
 	_ "microservice/services/transaction/docs"
 )
@@ -37,7 +38,7 @@ func newApp() *app {
 func (a *app) startApp() error {
 	computeID := os.Getenv("DB_COMPUTE_ID")
 	password := os.Getenv("DB_PASSWORD")
-	dbName := os.Getenv("DB_NAME")
+	dbName := os.Getenv("TRANSACTION_NAME")
 
 	fmt.Println("Starting transaction service")
 
@@ -67,9 +68,26 @@ func (a *app) startApp() error {
 }
 
 func main() {
-	if err := godotenv.Load("../../.env/..env"); err != nil {
-		fmt.Println("No ...env file found")
+	if err := godotenv.Load(); err != nil {
+		fmt.Println("No ..env file found")
 	}
+
+	nc, err := shared.ConnectNATS()
+	if err != nil {
+		return
+	}
+	defer nc.Close()
+
+	// Initialize UserService with the DB connection
+	db := shared.NewDatabase(os.Getenv("DB_COMPUTE_ID"), os.Getenv("DB_PASSWORD"), os.Getenv("TRANSACTION_NAME"))
+	newDB, err := db.PostgresConnection()
+	if err != nil {
+		return
+	}
+	userService := logic.NewTransactionService(newDB)
+
+	// Subscribe to user.created events
+	userService.SubscribeToUserCreated(nc)
 
 	app := newApp()
 	if err := app.startApp(); err != nil {

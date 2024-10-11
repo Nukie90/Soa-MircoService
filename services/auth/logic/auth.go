@@ -1,23 +1,27 @@
 package logic
 
 import (
-	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt"
-	"gorm.io/gorm"
 	"microservice/entity"
 	"microservice/services/auth/model"
 	"microservice/shared"
 	"os"
 	"time"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt"
+	"github.com/nats-io/nats.go"
+	"gorm.io/gorm"
 )
 
 type AuthService struct {
 	db *gorm.DB
+	nc *nats.Conn
 }
 
-func NewAuthService(db *gorm.DB) *AuthService {
+func NewAuthService(db *gorm.DB, nc *nats.Conn) *AuthService {
 	return &AuthService{
 		db: db,
+		nc: nc,
 	}
 }
 
@@ -71,6 +75,19 @@ func (us *AuthService) SignUp(ctx *fiber.Ctx) error {
 	if err := us.db.Create(&newUser).Error; err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
+		})
+	}
+
+	// Publish user created event
+	event := map[string]interface{}{
+		"id":        newUser.ID,
+		"name":      newUser.Name,
+		"address":   newUser.Address,
+		"birthDate": newUser.BirthDate,
+	}
+	if err := us.nc.Publish("user.created", shared.MarshalToJSON(event)); err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Could not publish event",
 		})
 	}
 

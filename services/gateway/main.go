@@ -12,14 +12,16 @@
 package main
 
 import (
+	"fmt"
+	_ "microservice/services/gateway/docs"
+	"microservice/services/gateway/route"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/joho/godotenv"
 	fiberSwagger "github.com/swaggo/fiber-swagger"
-	_ "microservice/services/gateway/docs"
-	"microservice/services/gateway/route"
 )
 
 func SetupGateway() error {
@@ -48,13 +50,13 @@ func SetupGateway() error {
 }
 
 func main() {
-	err := godotenv.Load("../../env/.env")
+	err := godotenv.Load()
 	if err != nil {
-		panic("Error loading ..env file")
+		fmt.Println("Error loading ..env file")
 	}
 
 	err = SetupGateway()
 	if err != nil {
-		panic("Error starting gateway")
+		fmt.Println("Error starting gateway")
 	}
 }

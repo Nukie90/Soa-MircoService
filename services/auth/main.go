@@ -13,15 +13,16 @@ package main
 
 import (
 	"fmt"
+	"microservice/services/auth/logic"
+	"microservice/services/auth/route"
+	"microservice/shared"
+	"os"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/joho/godotenv"
 	fiberSwagger "github.com/swaggo/fiber-swagger"
-	"microservice/services/auth/logic"
-	"microservice/services/auth/route"
-	"microservice/shared"
-	"os"
 
 	_ "microservice/services/auth/docs"
 )
@@ -42,13 +43,20 @@ func (a *App) StartApp() error {
 
 	fmt.Println("Starting Auth service")
 
+	// Establish connection to NATS
+	nc, err := shared.ConnectNATS()
+	if err != nil {
+		return err
+	}
+	defer nc.Close()
+
 	db := shared.NewDatabase(computeID, password, dbName)
 
 	newDB, err := db.PostgresConnection()
 	if err != nil {
 		return err
 	}
-	authLogic := logic.NewAuthService(newDB)
+	authLogic := logic.NewAuthService(newDB, nc)
 
 	a.Use(cors.New(cors.Config{
 		AllowCredentials: true,
@@ -69,14 +77,14 @@ func (a *App) StartApp() error {
 }
 
 func main() {
-	err := godotenv.Load("../../env/.env")
+	err := godotenv.Load()
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
 
 	app := NewApp()
 	err = app.StartApp()
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
 }

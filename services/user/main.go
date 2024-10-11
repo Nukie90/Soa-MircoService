@@ -13,16 +13,17 @@ package main
 
 import (
 	"fmt"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/joho/godotenv"
-	fiberSwagger "github.com/swaggo/fiber-swagger"
 	_ "microservice/services/user/docs"
 	"microservice/services/user/logic"
 	"microservice/services/user/route"
 	"microservice/shared"
 	"os"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/joho/godotenv"
+	fiberSwagger "github.com/swaggo/fiber-swagger"
 )
 
 type App struct {
@@ -68,14 +69,31 @@ func (a *App) StartApp() error {
 }
 
 func main() {
-	err := godotenv.Load("../../env/.env")
+	err := godotenv.Load()
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
+
+	nc, err := shared.ConnectNATS()
+	if err != nil {
+		return
+	}
+	defer nc.Close()
+
+	// Initialize UserService with the DB connection
+	db := shared.NewDatabase(os.Getenv("DB_COMPUTE_ID"), os.Getenv("DB_PASSWORD"), os.Getenv("USER_NAME"))
+	newDB, err := db.PostgresConnection()
+	if err != nil {
+		return
+	}
+	userService := logic.NewUserService(newDB)
+
+	// Subscribe to user.created events
+	userService.SubscribeToUserCreated(nc)
 
 	app := NewApp()
 	err = app.StartApp()
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
 }
