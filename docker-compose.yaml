@@ -1,0 +1,11 @@
+
+services:
+
+  transaction-service:
+    build:
+      context: .
+      dockerfile: services/transaction/Dockerfile.transaction
+    container_name: transaction-service
+    ports:
+      - "3300:3300"
+    env_file: "./env/.env"

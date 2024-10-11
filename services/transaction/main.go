@@ -37,7 +37,7 @@ func newApp() *app {
 func (a *app) startApp() error {
 	computeID := os.Getenv("DB_COMPUTE_ID")
 	password := os.Getenv("DB_PASSWORD")
-	dbName := os.Getenv("DB_NAME")
+	dbName := os.Getenv("TRANSACTION_NAME")
 
 	fmt.Println("Starting transaction service")
 
@@ -67,7 +67,7 @@ func (a *app) startApp() error {
 }
 
 func main() {
-	if err := godotenv.Load("../../env/.env"); err != nil {
+	if err := godotenv.Load(); err != nil {
 		fmt.Println("No ..env file found")
 	}
 
