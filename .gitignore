@@ -1,7 +1,5 @@
 .idea
 
-*.sum
-
 *.air.toml
 
 *.env
