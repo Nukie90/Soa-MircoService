@@ -78,7 +78,6 @@ func main() {
 	}
 	defer nc.Close()
 
-	// Initialize UserService with the DB connection
 	db := shared.NewDatabase(os.Getenv("DB_COMPUTE_ID"), os.Getenv("DB_PASSWORD"), os.Getenv("TRANSACTION_NAME"))
 	newDB, err := db.PostgresConnection()
 	if err != nil {
