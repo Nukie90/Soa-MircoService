@@ -30,7 +30,7 @@ func (d *Database) PostgresConnection() (*gorm.DB, error) {
 		return nil, err
 	}
 
-	err = conn.AutoMigrate(&entity2.User{}, &entity2.Account{})
+	err = conn.AutoMigrate(&entity2.User{}, &entity2.Account{}, &entity2.Transaction{})
 	if err != nil {
 		log.Fatalf("Error migrating database: %v", err)
 		return nil, err
