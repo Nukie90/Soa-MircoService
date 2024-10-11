@@ -22,6 +22,8 @@ import (
 	"microservice/services/auth/route"
 	"microservice/shared"
 	"os"
+
+	_ "microservice/services/auth/docs"
 )
 
 type App struct {
