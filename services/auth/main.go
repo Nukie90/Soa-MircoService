@@ -1,13 +1,13 @@
-// @title			Account Service
+// @title			Auth Service
 // @version		1.0
-// @description	This is the Account service API documentation
+// @description	This is the user service API documentation
 // @termsOfService	http://swagger.io/terms/
 // @contact.name	API Support
 // @contact.url	http://www.swagger.io/support
 // @contact.email	nukie.nxk@gmail.com
 // @license.name	Apache 2.0
 // @license.url	http://www.apache.org/licenses/LICENSE-2.0.html
-// @host			127.0.0.1:3200
+// @host			127.0.0.1:3500
 // @BasePath		/api/v1
 package main
 
@@ -18,28 +18,27 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/joho/godotenv"
 	fiberSwagger "github.com/swaggo/fiber-swagger"
-	"microservice/services/account/logic"
-	"microservice/services/account/route"
+	"microservice/services/auth/logic"
+	"microservice/services/auth/route"
 	"microservice/shared"
 	"os"
-
-	_ "microservice/services/account/docs"
 )
 
-type app struct {
+type App struct {
 	*fiber.App
 }
 
-func newApp() *app {
-	return &app{fiber.New()}
+func NewApp() *App {
+	return &App{fiber.New()}
 }
 
-func (a *app) startApp() error {
-	computeID := os.Getenv("DB_COMPUTE_ID")
-	password := os.Getenv("DB_PASSWORD")
-	dbName := os.Getenv("DB_NAME")
+func (a *App) StartApp() error {
 
-	fmt.Println("Starting account service")
+	computeID := os.Getenv("AUTH_COMPUTE_ID")
+	password := os.Getenv("AUTH_PASSWORD")
+	dbName := os.Getenv("AUTH_NAME")
+
+	fmt.Println("Starting Auth service")
 
 	db := shared.NewDatabase(computeID, password, dbName)
 
@@ -47,7 +46,7 @@ func (a *app) startApp() error {
 	if err != nil {
 		return err
 	}
-	accountLogic := logic.NewAccountService(newDB)
+	authLogic := logic.NewAuthService(newDB)
 
 	a.Use(cors.New(cors.Config{
 		AllowCredentials: true,
@@ -57,9 +56,10 @@ func (a *app) startApp() error {
 	a.Use(logger.New())
 	a.Get("swagger/*", fiberSwagger.WrapHandler)
 
-	route.NewAccountRoute(accountLogic).SetupAccountRoute(a.App)
+	route.NewAuthRoute(authLogic).SetupAuthRoute(a.App)
 
-	if err := a.Listen(":3200"); err != nil {
+	err = a.Listen(":3500")
+	if err != nil {
 		return err
 	}
 
@@ -67,12 +67,14 @@ func (a *app) startApp() error {
 }
 
 func main() {
-	if err := godotenv.Load("../../env/.env"); err != nil {
-		fmt.Println("No .env file found")
+	err := godotenv.Load("../../env/.env")
+	if err != nil {
+		panic(err)
 	}
 
-	app := newApp()
-	if err := app.startApp(); err != nil {
-		fmt.Println(err)
+	app := NewApp()
+	err = app.StartApp()
+	if err != nil {
+		panic(err)
 	}
 }

@@ -37,7 +37,7 @@ func (a *App) StartApp() error {
 
 	computeID := os.Getenv("DB_COMPUTE_ID")
 	password := os.Getenv("DB_PASSWORD")
-	dbName := os.Getenv("DB_NAME")
+	dbName := os.Getenv("USER_NAME")
 
 	fmt.Println("Starting user service")
 

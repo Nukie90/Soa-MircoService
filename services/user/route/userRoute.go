@@ -18,11 +18,6 @@ func (ur *UserRoute) SetupUserRoute(app *fiber.App) {
 	app.Get("/monitor", monitor.New())
 	api := app.Group("/api")
 	v1 := api.Group("/v1")
-	auth := v1.Group("/auth")
-	{
-		auth.Post("/login", ur.userLogic.Login)
-		auth.Post("/signup", ur.userLogic.SignUp)
-	}
 	users := v1.Group("/users")
 	{
 		users.Get("/all", ur.userLogic.GetAllUser)

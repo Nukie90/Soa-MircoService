@@ -67,8 +67,8 @@ func (a *app) startApp() error {
 }
 
 func main() {
-	if err := godotenv.Load("../../env/.env"); err != nil {
-		fmt.Println("No ..env file found")
+	if err := godotenv.Load("../../.env/..env"); err != nil {
+		fmt.Println("No ...env file found")
 	}
 
 	app := newApp()

@@ -50,7 +50,7 @@ func SetupGateway() error {
 func main() {
 	err := godotenv.Load("../../env/.env")
 	if err != nil {
-		panic("Error loading .env file")
+		panic("Error loading ..env file")
 	}
 
 	err = SetupGateway()

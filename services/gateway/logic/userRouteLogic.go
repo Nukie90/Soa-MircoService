@@ -22,7 +22,7 @@ import (
 // @Router			/auth/signup [post]
 func ForwardSignup(ctx *fiber.Ctx) error {
 	body := bytes.NewReader(ctx.Body())
-	resp, err := http.Post("http://localhost:3100/api/v1/auth/signup", "application/json", body)
+	resp, err := http.Post("http://localhost:3500/api/v1/auth/signup", "application/json", body)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
@@ -58,7 +58,7 @@ func ForwardSignup(ctx *fiber.Ctx) error {
 func ForwardLogin(ctx *fiber.Ctx) error {
 	fmt.Println("call login")
 	body := bytes.NewReader(ctx.Body())
-	resp, err := http.Post("http://localhost:3100/api/v1/auth/login", "application/json", body)
+	resp, err := http.Post("http://localhost:3500/api/v1/auth/login", "application/json", body)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),

@@ -16,3 +16,5 @@
 /services/gateway/tmp
 
 /services/account/tmp
+
+/services/auth/tmp
