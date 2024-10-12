@@ -35,3 +35,32 @@ func (ps *PaymentService) SubscribeToUserCreated() error {
 	log.Printf("Subscribed to user.created events with durable subscription: %s", subscription.Subject)
 	return nil
 }
+
+// SubscribeToAccountCreated subscribes to account.created events using JetStream
+func (ps *PaymentService) SubscribeToAccountCreated() error {
+	// Create a durable subscription to JetStream
+	subscription, err := ps.js.Subscribe("account.created", func(msg *nats.Msg) {
+		var newAccount entity.Account
+		if err := json.Unmarshal(msg.Data, &newAccount); err != nil {
+			log.Printf("Error unmarshalling account data: %v", err)
+			msg.Nak() // Acknowledge that the message could not be processed
+			return
+		}
+
+		// Store the new account in the Payment service's database
+		if err := ps.db.Create(&newAccount).Error; err != nil {
+			log.Printf("Error saving account to database: %v", err)
+			msg.Nak() // Acknowledge that the message could not be processed
+		} else {
+			log.Printf("Account created in Payment service database.")
+			msg.Ack() // Acknowledge successful processing
+		}
+	}, nats.Durable("payment_service_durable"))
+
+	if err != nil {
+		return err
+	}
+
+	log.Printf("Subscribed to account.created events with durable subscription: %s", subscription.Subject)
+	return nil
+}

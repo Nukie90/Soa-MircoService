@@ -19,7 +19,7 @@ import (
 // @Router			/account/ [get]
 func ForwardGetAllAccount(ctx *fiber.Ctx) error {
 	fmt.Println("calling account service")
-	resp, err := http.Get("http://127.0.0.1:3200/api/v1/account/")
+	resp, err := http.Get("http://account-service:3200/api/v1/account/")
 	if err != nil {
 		return err
 	}
@@ -60,7 +60,7 @@ func ForwardCreateAccount(ctx *fiber.Ctx) error {
 	tokenString := ctx.Cookies("Authorization")
 
 	account := &http.Client{}
-	req, err := http.NewRequest("POST", "http://127.0.0.1:3200/api/v1/account/", bytes.NewReader(ctx.Body()))
+	req, err := http.NewRequest("POST", "http://account-service:3200/api/v1/account/", bytes.NewReader(ctx.Body()))
 	if err != nil {
 		return err
 	}

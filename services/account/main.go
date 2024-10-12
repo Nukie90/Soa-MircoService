@@ -65,8 +65,8 @@ func (a *app) startApp() error {
 
 	// Create a stream for storing messages
 	_, err = js.AddStream(&nats.StreamConfig{
-		Name:     "user_stream",
-		Subjects: []string{"user.created"},
+		Name:     "account_stream",
+		Subjects: []string{"account.created", "account.updated"},
 	})
 	if err != nil {
 		log.Printf("Stream may already exist: %v", err)

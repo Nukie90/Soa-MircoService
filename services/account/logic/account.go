@@ -153,23 +153,28 @@ func (as *AccountService) CreateAccount(ctx *fiber.Ctx) error {
 		})
 	}
 
-	// Connect to NATS
-	nc, err := shared.ConnectNATS()
-	if err != nil {
-		return err
+	event := map[string]interface{}{
+		"userID":  account.UserID,
+		"type":    account.Type,
+		"balance": account.Balance,
+		"pin":     account.Pin,
 	}
-	defer nc.Close()
 
-	// Publish event to NATS
-	eventData := fmt.Sprintf(`{"account_id":"%s", "user_id":"%s", "type":"%s", "balance":%.2f}`, account.ID, account.UserID, account.Type, account.Balance)
-	err = nc.Publish("account.created", []byte(eventData))
+	// Publish message to NATS
+	eventData, err := shared.MarshalToJSON(event)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": err.Error(),
+			"error": "Could not marshal event to JSON",
 		})
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
-		"account": account,
+	if _, err := as.js.Publish("account.created", eventData); err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Could not publish event",
+		})
+	}
+
+	return ctx.Status(fiber.StatusCreated).JSON(fiber.Map{
+		"message": "Account created successfully",
 	})
 }
