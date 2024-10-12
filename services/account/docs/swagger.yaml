@@ -9,6 +9,13 @@ definitions:
       type:
         type: string
     type: object
+  model.DeleteAccount:
+    properties:
+      id:
+        type: string
+      pin:
+        type: string
+    type: object
   model.TopUp:
     properties:
       amount:
@@ -75,6 +82,26 @@ paths:
       - application/json
       responses: {}
       summary: Get account by ID
+      tags:
+      - account
+  /account/delete:
+    delete:
+      consumes:
+      - application/json
+      description: Delete account by verifying ID and PIN
+      parameters:
+      - description: Delete account information
+        in: body
+        name: deleteAccount
+        required: true
+        schema:
+          $ref: '#/definitions/model.DeleteAccount'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - Bearer: []
+      summary: Delete account
       tags:
       - account
   /account/topup:

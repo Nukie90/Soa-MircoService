@@ -70,6 +70,38 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/account/delete": {
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Delete account by verifying ID and PIN",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "account"
+                ],
+                "summary": "Delete account",
+                "parameters": [
+                    {
+                        "description": "Delete account information",
+                        "name": "deleteAccount",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.DeleteAccount"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/account/topup": {
             "post": {
                 "security": [
@@ -139,6 +171,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.DeleteAccount": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "pin": {
                     "type": "string"
                 }
             }
