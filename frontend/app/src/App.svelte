@@ -12,7 +12,7 @@
       <Account />
       
       <div class="flex flex-col space-y-4 absolute right-0 top-24">
-        <Link to="/transfer">
+        <Link to="/">
           <button class="bg-green-500 hover:bg-green-700 text-white py-2 px-4 rounded">
             Transfer
           </button>
@@ -30,7 +30,7 @@
       </div>
 
       <div class="mt-6">
-        <Route path="/transfer" component={Transfer} />
+        <Route path="/" component={Transfer} />
         <Route path="/payment" component={Payment} />
         <Route path="/statement" component={Statement} />
       </div>
