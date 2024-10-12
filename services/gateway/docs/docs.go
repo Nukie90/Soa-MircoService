@@ -39,6 +39,49 @@ const docTemplate = `{
                 "summary": "Forward get all account request to account service",
                 "responses": {}
             },
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Forward change pin request to account service",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "account"
+                ],
+                "summary": "Forward change pin request to account service",
+                "parameters": [
+                    {
+                        "description": "Change pin information",
+                        "name": "account",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.ChangePin"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Pin changed successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -81,10 +124,53 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Forward delete account request to account service",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "account"
+                ],
+                "summary": "Forward delete account request to account service",
+                "parameters": [
+                    {
+                        "description": "Delete account information",
+                        "name": "account",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.DeleteAccount"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Account deleted successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
             }
         },
         "/account/topup": {
-            "post": {
+            "put": {
                 "security": [
                     {
                         "Bearer": []
@@ -115,6 +201,51 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "Top up successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/account/verify": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Forward verify account request to account service",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "account"
+                ],
+                "summary": "Forward verify account request to account service",
+                "parameters": [
+                    {
+                        "description": "Account verify information",
+                        "name": "account",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.AccountVerify"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Account verified successfully",
                         "schema": {
                             "type": "string"
                         }
@@ -340,6 +471,31 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "model.AccountVerify": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "pin": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.ChangePin": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "newPin": {
+                    "type": "string"
+                },
+                "oldPin": {
+                    "type": "string"
+                }
+            }
+        },
         "model.CreateAccount": {
             "type": "object",
             "properties": {
@@ -350,6 +506,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.DeleteAccount": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "pin": {
                     "type": "string"
                 }
             }

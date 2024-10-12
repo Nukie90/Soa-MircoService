@@ -98,12 +98,132 @@ func ForwardCreateAccount(ctx *fiber.Ctx) error {
 // @Success		200		{string}	string			"Top up successfully"
 // @Failure		400		{string}	string			"Bad request"
 //
-// @Router			/account/topup [post]
+// @Router			/account/topup [put]
 func ForwardTopUp(ctx *fiber.Ctx) error {
 	tokenString := ctx.Cookies("Authorization")
 
 	account := &http.Client{}
-	req, err := http.NewRequest("POST", "http://account-service:3200/api/v1/account/topup", bytes.NewReader(ctx.Body()))
+	req, err := http.NewRequest("PUT", "http://account-service:3200/api/v1/account/topup", bytes.NewReader(ctx.Body()))
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Authorization", tokenString)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := account.Do(req)
+	if err != nil {
+		return err
+	}
+
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	return ctx.Status(resp.StatusCode).Send(body)
+}
+
+// ForwardChangePin godoc
+//
+// @Summary		Forward change pin request to account service
+// @Description	Forward change pin request to account service
+// @Tags			account
+// @Accept			json
+// @Produce		json
+// @security		Bearer
+// @Param			account	body		model.ChangePin	true	"Change pin information"
+// @Success		200		{string}	string			"Pin changed successfully"
+// @Failure		400		{string}	string			"Bad request"
+//
+// @Router			/account/ [put]
+func ForwardChangePin(ctx *fiber.Ctx) error {
+	tokenString := ctx.Cookies("Authorization")
+
+	account := &http.Client{}
+	req, err := http.NewRequest("PUT", "http://account-service:3200/api/v1/account/", bytes.NewReader(ctx.Body()))
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Authorization", tokenString)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := account.Do(req)
+	if err != nil {
+		return err
+	}
+
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	return ctx.Status(resp.StatusCode).Send(body)
+}
+
+// ForwardDeleteAccount godoc
+//
+// @Summary		Forward delete account request to account service
+// @Description	Forward delete account request to account service
+// @Tags			account
+// @Accept			json
+// @Produce		json
+// @security		Bearer
+// @Param			account	body		model.DeleteAccount	true	"Delete account information"
+// @Success		200		{string}	string			"Account deleted successfully"
+// @Failure		400		{string}	string			"Bad request"
+//
+// @Router			/account/ [delete]
+func ForwardDeleteAccount(ctx *fiber.Ctx) error {
+	tokenString := ctx.Cookies("Authorization")
+
+	account := &http.Client{}
+	req, err := http.NewRequest("DELETE", "http://account-service:3200/api/v1/account/", bytes.NewReader(ctx.Body()))
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Authorization", tokenString)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := account.Do(req)
+	if err != nil {
+		return err
+	}
+
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	return ctx.Status(resp.StatusCode).Send(body)
+}
+
+// ForwardVerifyAccount godoc
+//
+// @Summary		Forward verify account request to account service
+// @Description	Forward verify account request to account service
+// @Tags			account
+// @Accept			json
+// @Produce		json
+// @security		Bearer
+// @Param			account	body		model.AccountVerify	true	"Account verify information"
+// @Success		200		{string}	string			"Account verified successfully"
+// @Failure		400		{string}	string			"Bad request"
+//
+// @Router			/account/verify [post]
+func ForwardVerifyAccount(ctx *fiber.Ctx) error {
+	tokenString := ctx.Cookies("Authorization")
+
+	account := &http.Client{}
+	req, err := http.NewRequest("POST", "http://account-service:3200/api/v1/account/verify", bytes.NewReader(ctx.Body()))
 	if err != nil {
 		return err
 	}
