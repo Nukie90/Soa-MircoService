@@ -92,3 +92,52 @@ func (as *AccountService) SubscribeToTransactionCreated() error {
 	log.Printf("Subscribed to transaction.created events with durable subscription: %s", subscription.Subject)
 	return nil
 }
+
+func (as *AccountService) SubscribeToPaymentCreated() error {
+	subscription, err := as.js.Subscribe("payment.created", func(msg *nats.Msg) {
+		var payment entity.Payment
+		if err := json.Unmarshal(msg.Data, &payment); err != nil {
+			log.Printf("Error unmarshalling payment data: %v", err)
+			msg.Nak() // Acknowledge that the message could not be processed
+			return
+		}
+
+		log.Printf("Processing payment %s", payment.ID)
+
+		// Perform the payment within a database payment for safety
+		err := as.db.Transaction(func(tx *gorm.DB) error {
+			var sourceAccount entity.Account
+
+			// Fetch source account
+			if err := tx.Where("id = ?", payment.SourceAccountID).First(&sourceAccount).Error; err != nil {
+				return err
+			}
+
+			// Adjust balance
+			sourceAccount.Balance -= payment.Amount
+
+			// Save updated account
+			if err := tx.Save(&sourceAccount).Error; err != nil {
+				return err
+			}
+
+			return nil
+		})
+
+		if err != nil {
+			log.Printf("Error processing payment %s: %v", payment.ID, err)
+			msg.Nak() // Acknowledge failure to process the message
+			return
+		}
+
+		log.Printf("Payment %s processed successfully", payment.ID)
+		msg.Ack() // Acknowledge successful processing
+	}, nats.Durable("account_service_payment_durable"))
+
+	if err != nil {
+		return err
+	}
+
+	log.Printf("Subscribed to payment.created events with durable subscription: %s", subscription.Subject)
+	return nil
+}

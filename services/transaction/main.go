@@ -107,6 +107,10 @@ func (a *app) startApp() error {
 		log.Fatalf("Error subscribing to account.changedPin events: %v", err)
 	}
 
+	if err := transactionService.SubscribeToPaymentCreated(); err != nil {
+		log.Fatalf("Error subscribing to payment.created events: %v", err)
+	}
+
 	transactionLogic, err := logic.NewTransactionService(newDB, nc)
 
 	a.Use(cors.New(cors.Config{
