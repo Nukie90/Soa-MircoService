@@ -74,7 +74,7 @@ func (a *app) startApp() error {
 
 	_, err = js.UpdateStream(&nats.StreamConfig{
 		Name:     "transaction_stream",
-		Subjects: []string{"account.created", "account.updated", "account.deleted", "account.changedPin"},
+		Subjects: []string{"transaction.created"},
 	})
 	if err != nil {
 		log.Printf("Stream may already exist or error: %v", err)
@@ -95,8 +95,8 @@ func (a *app) startApp() error {
 		log.Fatalf("Error subscribing to account.created events: %v", err)
 	}
 
-	if err := transactionService.SubscribeToAccountUpdated(); err != nil {
-		log.Fatalf("Error subscribing to account.updated events: %v", err)
+	if err := transactionService.SubscribeToAccountTopUp(); err != nil {
+		log.Fatalf("Error subscribing to account.topup events: %v", err)
 	}
 
 	if err := transactionService.SubscribeToAccountDeleted(); err != nil {

@@ -65,9 +65,9 @@ func (ts *TransactionService) SubscribeToAccountCreated() error {
 	return nil
 }
 
-func (ts *TransactionService) SubscribeToAccountUpdated() error {
+func (ts *TransactionService) SubscribeToAccountTopUp() error {
 	// Create a durable subscription to JetStream
-	subscription, err := ts.js.Subscribe("account.updated", func(msg *nats.Msg) {
+	subscription, err := ts.js.Subscribe("account.topup", func(msg *nats.Msg) {
 		var updatedAccount entity.Account
 		if err := json.Unmarshal(msg.Data, &updatedAccount); err != nil {
 			log.Printf("Error unmarshalling account data: %v", err)
@@ -76,7 +76,7 @@ func (ts *TransactionService) SubscribeToAccountUpdated() error {
 		}
 
 		// Update the account in the Transaction service's database
-		if err := ts.db.Save(&updatedAccount).Error; err != nil {
+		if err := ts.db.Model(&entity.Account{}).Where("id = ?", updatedAccount.ID).Update("balance", updatedAccount.Balance).Error; err != nil {
 			log.Printf("Error updating account in database: %v", err)
 			msg.Nak() // Acknowledge that the message could not be processed
 		} else {

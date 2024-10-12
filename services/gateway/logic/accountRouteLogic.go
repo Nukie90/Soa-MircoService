@@ -98,12 +98,12 @@ func ForwardCreateAccount(ctx *fiber.Ctx) error {
 // @Success		200		{string}	string			"Top up successfully"
 // @Failure		400		{string}	string			"Bad request"
 //
-// @Router			/account/topup [post]
+// @Router			/account/topup [put]
 func ForwardTopUp(ctx *fiber.Ctx) error {
 	tokenString := ctx.Cookies("Authorization")
 
 	account := &http.Client{}
-	req, err := http.NewRequest("POST", "http://account-service:3200/api/v1/account/topup", bytes.NewReader(ctx.Body()))
+	req, err := http.NewRequest("PUT", "http://account-service:3200/api/v1/account/topup", bytes.NewReader(ctx.Body()))
 	if err != nil {
 		return err
 	}

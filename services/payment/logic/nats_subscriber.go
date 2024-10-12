@@ -65,9 +65,9 @@ func (ps *PaymentService) SubscribeToAccountCreated() error {
 	return nil
 }
 
-func (ps *PaymentService) SubscribeToAccountUpdated() error {
+func (ps *PaymentService) SubscribeToAccountTopUp() error {
 	// Create a durable subscription to JetStream
-	subscription, err := ps.js.Subscribe("account.updated", func(msg *nats.Msg) {
+	subscription, err := ps.js.Subscribe("account.topup", func(msg *nats.Msg) {
 		var updatedAccount entity.Account
 		if err := json.Unmarshal(msg.Data, &updatedAccount); err != nil {
 			log.Printf("Error unmarshalling account data: %v", err)
@@ -76,7 +76,7 @@ func (ps *PaymentService) SubscribeToAccountUpdated() error {
 		}
 
 		// Update the account in the Payment service's database
-		if err := ps.db.Save(&updatedAccount).Error; err != nil {
+		if err := ps.db.Model(&entity.Account{}).Where("id = ?", updatedAccount.ID).Update("balance", updatedAccount.Balance).Error; err != nil {
 			log.Printf("Error updating account in database: %v", err)
 			msg.Nak() // Acknowledge that the message could not be processed
 		} else {

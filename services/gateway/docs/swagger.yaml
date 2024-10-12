@@ -96,7 +96,7 @@ paths:
       tags:
       - account
   /account/topup:
-    post:
+    put:
       consumes:
       - application/json
       description: Forward top up request to account service

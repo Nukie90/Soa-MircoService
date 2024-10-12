@@ -198,7 +198,7 @@ func (as *AccountService) CreateAccount(ctx *fiber.Ctx) error {
 // @Produce		json
 // @Security		Bearer
 // @Param			topUp body model.TopUp true "Top up information"
-// @Router			/account/topup [post]
+// @Router			/account/topup [put]
 func (as *AccountService) TopUp(ctx *fiber.Ctx) error {
 	var topUp model.TopUp
 	if err := ctx.BodyParser(&topUp); err != nil {
@@ -252,10 +252,7 @@ func (as *AccountService) TopUp(ctx *fiber.Ctx) error {
 
 	event := map[string]interface{}{
 		"ID":      account.ID,
-		"userID":  account.UserID,
-		"type":    account.Type,
 		"balance": account.Balance,
-		"pin":     account.Pin,
 	}
 
 	// Publish message to NATS
@@ -266,7 +263,7 @@ func (as *AccountService) TopUp(ctx *fiber.Ctx) error {
 		})
 	}
 
-	if _, err := as.js.Publish("account.updated", eventData); err != nil {
+	if _, err := as.js.Publish("account.topup", eventData); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Could not publish event",
 		})

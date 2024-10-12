@@ -84,7 +84,7 @@ const docTemplate = `{
             }
         },
         "/account/topup": {
-            "post": {
+            "put": {
                 "security": [
                     {
                         "Bearer": []

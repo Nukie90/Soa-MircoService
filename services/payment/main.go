@@ -88,8 +88,8 @@ func (a *app) startApp() error {
 		log.Fatalf("Error subscribing to account.created events: %v", err)
 	}
 
-	if err := paymentService.SubscribeToAccountUpdated(); err != nil {
-		log.Fatalf("Error subscribing to account.updated events: %v", err)
+	if err := paymentService.SubscribeToAccountTopUp(); err != nil {
+		log.Fatalf("Error subscribing to account.topup events: %v", err)
 	}
 
 	// Subscribe to account.deleted events using JetStream
