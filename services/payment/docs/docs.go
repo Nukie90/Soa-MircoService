@@ -45,7 +45,7 @@ const docTemplate = `{
                         "Bearer": []
                     }
                 ],
-                "description": "Create payment",
+                "description": "Create a new payment between accounts",
                 "consumes": [
                     "application/json"
                 ],

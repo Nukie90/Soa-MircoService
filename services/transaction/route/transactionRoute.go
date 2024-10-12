@@ -23,9 +23,6 @@ func (tr *TransactionRoute) SetupTransactionRoute(app *fiber.App) {
 		account.Get("/", tr.transactionLogic.GetAllTransaction)
 		account.Get("/:id", tr.transactionLogic.GetTransactionByID)
 		account.Post("/", tr.transactionLogic.CreateTransaction)
-		//account.Put("/:id", ar.accountLogic.ChangePin)
-		//account.Delete("/:id", ar.accountLogic.DeleteAccount)
-		//account.Get("/clientAcc", ar.accountLogic.GetClientAccount)
 	}
 
 }

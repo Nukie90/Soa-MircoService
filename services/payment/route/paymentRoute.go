@@ -23,9 +23,6 @@ func (pr *PaymentRoute) SetupPaymentRoute(app *fiber.App) {
 		account.Get("/", pr.paymentLogic.GetAllPayment)
 		account.Get("/:id", pr.paymentLogic.GetPaymentByID)
 		account.Post("/", pr.paymentLogic.CreatePayment)
-		//account.Put("/:id", ar.accountLogic.ChangePin)
-		//account.Delete("/:id", ar.accountLogic.DeleteAccount)
-		//account.Get("/clientAcc", ar.accountLogic.GetClientAccount)
 	}
 
 }

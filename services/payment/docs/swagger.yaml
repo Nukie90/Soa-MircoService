@@ -37,7 +37,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Create payment
+      description: Create a new payment between accounts
       parameters:
       - description: Payment information
         in: body
