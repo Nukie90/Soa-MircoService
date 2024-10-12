@@ -84,6 +84,9 @@ func (a *app) startApp() error {
 	}
 
 	accountLogic, err := logic.NewAccountService(newDB, nc)
+	if err != nil {
+		log.Fatalf("Error creating Account Service: %v", err)
+	}
 
 	a.Use(cors.New(cors.Config{
 		AllowCredentials: true,

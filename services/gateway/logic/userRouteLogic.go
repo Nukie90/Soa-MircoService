@@ -22,7 +22,7 @@ import (
 // @Router			/auth/signup [post]
 func ForwardSignup(ctx *fiber.Ctx) error {
 	body := bytes.NewReader(ctx.Body())
-	resp, err := http.Post("http://localhost:3500/api/v1/auth/signup", "application/json", body)
+	resp, err := http.Post("http://auth-service:3500/api/v1/auth/signup", "application/json", body)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
@@ -58,7 +58,7 @@ func ForwardSignup(ctx *fiber.Ctx) error {
 func ForwardLogin(ctx *fiber.Ctx) error {
 	fmt.Println("call login")
 	body := bytes.NewReader(ctx.Body())
-	resp, err := http.Post("http://localhost:3500/api/v1/auth/login", "application/json", body)
+	resp, err := http.Post("http://auth-service:3500/api/v1/auth/login", "application/json", body)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
@@ -122,7 +122,7 @@ func GetToken(ctx *fiber.Ctx) error {
 // @Router			/users/all [get]
 func ForwardGetAllUser(ctx *fiber.Ctx) error {
 	fmt.Println("call all user")
-	resp, err := http.Get("http://localhost:3100/api/v1/users")
+	resp, err := http.Get("http://user-service:3100/api/v1/users")
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
@@ -156,7 +156,7 @@ func ForwardGetAllUser(ctx *fiber.Ctx) error {
 //
 // @Router			/users/all/{id} [get]
 func ForwardGetUserByID(ctx *fiber.Ctx) error {
-	resp, err := http.Get("http://localhost:3100/api/v1/users/" + ctx.Params("id"))
+	resp, err := http.Get("http://user-service:3100/api/v1/users/" + ctx.Params("id"))
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
@@ -194,7 +194,7 @@ func ForwardGetMe(ctx *fiber.Ctx) error {
 	cookie := ctx.Cookies("Authorization")
 
 	userService := &http.Client{}
-	req, err := http.NewRequest("GET", "http://localhost:3100/api/v1/users/me", nil)
+	req, err := http.NewRequest("GET", "http://user-service:3100/api/v1/users/me", nil)
 	if err != nil {
 		return err
 	}
