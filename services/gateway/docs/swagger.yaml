@@ -1,21 +1,5 @@
 basePath: /api/v1
 definitions:
-  model.AccountVerify:
-    properties:
-      id:
-        type: string
-      pin:
-        type: string
-    type: object
-  model.ChangePin:
-    properties:
-      id:
-        type: string
-      newPin:
-        type: string
-      oldPin:
-        type: string
-    type: object
   model.CreateAccount:
     properties:
       balance:
@@ -23,13 +7,6 @@ definitions:
       pin:
         type: string
       type:
-        type: string
-    type: object
-  model.DeleteAccount:
-    properties:
-      id:
-        type: string
-      pin:
         type: string
     type: object
   model.Login:
@@ -81,33 +58,6 @@ info:
   version: "1.0"
 paths:
   /account/:
-    delete:
-      consumes:
-      - application/json
-      description: Forward delete account request to account service
-      parameters:
-      - description: Delete account information
-        in: body
-        name: account
-        required: true
-        schema:
-          $ref: '#/definitions/model.DeleteAccount'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Account deleted successfully
-          schema:
-            type: string
-        "400":
-          description: Bad request
-          schema:
-            type: string
-      security:
-      - Bearer: []
-      summary: Forward delete account request to account service
-      tags:
-      - account
     get:
       consumes:
       - application/json
@@ -145,35 +95,8 @@ paths:
       summary: Forward create account request to account service
       tags:
       - account
-    put:
-      consumes:
-      - application/json
-      description: Forward change pin request to account service
-      parameters:
-      - description: Change pin information
-        in: body
-        name: account
-        required: true
-        schema:
-          $ref: '#/definitions/model.ChangePin'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Pin changed successfully
-          schema:
-            type: string
-        "400":
-          description: Bad request
-          schema:
-            type: string
-      security:
-      - Bearer: []
-      summary: Forward change pin request to account service
-      tags:
-      - account
   /account/topup:
-    put:
+    post:
       consumes:
       - application/json
       description: Forward top up request to account service
@@ -198,34 +121,6 @@ paths:
       security:
       - Bearer: []
       summary: Forward top up request to account service
-      tags:
-      - account
-  /account/verify:
-    post:
-      consumes:
-      - application/json
-      description: Forward verify account request to account service
-      parameters:
-      - description: Account verify information
-        in: body
-        name: account
-        required: true
-        schema:
-          $ref: '#/definitions/model.AccountVerify'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Account verified successfully
-          schema:
-            type: string
-        "400":
-          description: Bad request
-          schema:
-            type: string
-      security:
-      - Bearer: []
-      summary: Forward verify account request to account service
       tags:
       - account
   /auth/login:
