@@ -9,6 +9,13 @@ definitions:
       type:
         type: string
     type: object
+  model.TopUp:
+    properties:
+      amount:
+        type: number
+      id:
+        type: string
+    type: object
 host: 127.0.0.1:3200
 info:
   contact:
@@ -48,6 +55,8 @@ paths:
       produces:
       - application/json
       responses: {}
+      security:
+      - Bearer: []
       summary: Create account
       tags:
       - account
@@ -66,6 +75,26 @@ paths:
       - application/json
       responses: {}
       summary: Get account by ID
+      tags:
+      - account
+  /account/topup:
+    post:
+      consumes:
+      - application/json
+      description: Top up account
+      parameters:
+      - description: Top up information
+        in: body
+        name: topUp
+        required: true
+        schema:
+          $ref: '#/definitions/model.TopUp'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - Bearer: []
+      summary: Top up account
       tags:
       - account
 swagger: "2.0"

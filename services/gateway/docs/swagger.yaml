@@ -36,6 +36,13 @@ definitions:
         example: password
         type: string
     type: object
+  model.TopUp:
+    properties:
+      amount:
+        type: number
+      id:
+        type: string
+    type: object
 host: 127.0.0.1:3000
 info:
   contact:
@@ -86,6 +93,34 @@ paths:
       security:
       - Bearer: []
       summary: Forward create account request to account service
+      tags:
+      - account
+  /account/topup:
+    post:
+      consumes:
+      - application/json
+      description: Forward top up request to account service
+      parameters:
+      - description: Top up information
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/model.TopUp'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Top up successfully
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Forward top up request to account service
       tags:
       - account
   /auth/login:

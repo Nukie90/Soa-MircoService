@@ -35,3 +35,8 @@ type DeleteAccount struct {
 	ID  string `json:"id"`
 	Pin string `json:"pin"`
 }
+
+type TopUp struct {
+	ID     string  `json:"id"`
+	Amount float64 `json:"amount"`
+}

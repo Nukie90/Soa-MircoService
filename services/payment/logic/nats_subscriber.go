@@ -64,3 +64,31 @@ func (ps *PaymentService) SubscribeToAccountCreated() error {
 	log.Printf("Subscribed to account.created events with durable subscription: %s", subscription.Subject)
 	return nil
 }
+
+func (ps *PaymentService) SubscribeToAccountUpdated() error {
+	// Create a durable subscription to JetStream
+	subscription, err := ps.js.Subscribe("account.updated", func(msg *nats.Msg) {
+		var updatedAccount entity.Account
+		if err := json.Unmarshal(msg.Data, &updatedAccount); err != nil {
+			log.Printf("Error unmarshalling account data: %v", err)
+			msg.Nak() // Acknowledge that the message could not be processed
+			return
+		}
+
+		// Update the account in the Payment service's database
+		if err := ps.db.Save(&updatedAccount).Error; err != nil {
+			log.Printf("Error updating account in database: %v", err)
+			msg.Nak() // Acknowledge that the message could not be processed
+		} else {
+			log.Printf("Account updated in Payment service database.")
+			msg.Ack() // Acknowledge successful processing
+		}
+	}, nats.Durable("payment_service_update_durable"))
+
+	if err != nil {
+		return err
+	}
+
+	log.Printf("Subscribed to account.updated events with durable subscription: %s", subscription.Subject)
+	return nil
+}

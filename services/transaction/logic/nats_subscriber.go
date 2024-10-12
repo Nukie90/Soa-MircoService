@@ -2,6 +2,7 @@ package logic
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"microservice/entity"
 
@@ -61,5 +62,34 @@ func (ts *TransactionService) SubscribeToAccountCreated() error {
 	}
 
 	log.Printf("Subscribed to account.created events with durable subscription: %s", subscription.Subject)
+	return nil
+}
+
+func (ts *TransactionService) SubscribeToAccountUpdated() error {
+	// Create a durable subscription to JetStream
+	subscription, err := ts.js.Subscribe("account.updated", func(msg *nats.Msg) {
+		var updatedAccount entity.Account
+		if err := json.Unmarshal(msg.Data, &updatedAccount); err != nil {
+			log.Printf("Error unmarshalling account data: %v", err)
+			msg.Nak() // Acknowledge that the message could not be processed
+			return
+		}
+
+		// Update the account in the Transaction service's database
+		if err := ts.db.Save(&updatedAccount).Error; err != nil {
+			log.Printf("Error updating account in database: %v", err)
+			msg.Nak() // Acknowledge that the message could not be processed
+		} else {
+			log.Printf("Account updated in Transaction service database.")
+			msg.Ack() // Acknowledge successful processing
+		}
+	}, nats.Durable("transaction_service_update_durable"))
+
+	if err != nil {
+		fmt.Println("Error")
+		return err
+	}
+
+	log.Printf("Subscribed to account.updated events with durable subscription: %s", subscription.Subject)
 	return nil
 }

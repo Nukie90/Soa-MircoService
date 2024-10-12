@@ -27,6 +27,7 @@ func SetupRoute(app *fiber.App) {
 			account.Get("/", logic.ForwardGetAllAccount)
 			account.Post("/", logic.ForwardCreateAccount)
 			account.Get("/:id", logic.ForwardGetAccountByID)
+			account.Post("/topup", logic.ForwardTopUp)
 		}
 	}
 

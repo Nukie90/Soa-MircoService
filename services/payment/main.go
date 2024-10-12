@@ -88,6 +88,10 @@ func (a *app) startApp() error {
 		log.Fatalf("Error subscribing to account.created events: %v", err)
 	}
 
+	if err := paymentService.SubscribeToAccountUpdated(); err != nil {
+		log.Fatalf("Error subscribing to account.updated events: %v", err)
+	}
+
 	paymentLogic, err := logic.NewPaymentService(newDB, nc)
 
 	a.Use(cors.New(cors.Config{

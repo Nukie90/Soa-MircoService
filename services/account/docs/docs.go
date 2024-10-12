@@ -40,6 +40,11 @@ const docTemplate = `{
                 "responses": {}
             },
             "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Create account",
                 "consumes": [
                     "application/json"
@@ -59,6 +64,38 @@ const docTemplate = `{
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/model.CreateAccount"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/account/topup": {
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Top up account",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "account"
+                ],
+                "summary": "Top up account",
+                "parameters": [
+                    {
+                        "description": "Top up information",
+                        "name": "topUp",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.TopUp"
                         }
                     }
                 ],
@@ -102,6 +139,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.TopUp": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "id": {
                     "type": "string"
                 }
             }
