@@ -1,6 +1,17 @@
 <script>
   import { Link } from "svelte-routing";
   import { Card, Label, Button } from "flowbite-svelte";
+  import { Modal, Input } from 'flowbite-svelte';
+
+  let popupModal_confirm = false;
+
+  function openConfirmModal() {
+    popupModal_confirm = true; // Open modal
+  }
+
+  function closeConfirmModal() {
+    popupModal_confirm = false; // Close modal
+  }
 </script>
 
 <div class="flex justify-center mt-10">
@@ -47,9 +58,51 @@
         </Link>
 
         <!-- Next Button -->
-        <Button class="w-36 h-12 bg-green-500 hover:bg-blue-600 text-white font-semibold rounded-lg shadow-md transition duration-150 ease-in-out">
+        <Button class="w-36 h-12 bg-green-500 hover:bg-blue-600 text-white font-semibold rounded-lg shadow-md transition duration-150 ease-in-out"
+        on:click={openConfirmModal}>
           Confirm
         </Button>
+        {#if popupModal_confirm}
+          <div class="fixed inset-0 flex items-center z-50">
+            <div class="bg-white rounded-lg shadow-lg p-6 w-96 relative mt-16" style="top: 150%; left: 400%;">
+              <h3 class="text-3xl font-bold text-black text-center mb-4">Confirm for a pin</h3>
+              <form class="flex flex-col space-y-6" action="#">
+                <Label class="space-y-2">
+                  <span>Enter a pin</span>
+                  <Input type="password" class="bg-blue-500 px-4 py-2" required />
+                </Label>
+                <div class="flex justify-center gap-64">
+                  <Button
+                    class="w-20 h-9 bg-red-400 hover:bg-red-700 text-black"
+                    on:click={closeConfirmModal}>Close</Button>
+                  <Button 
+                    class="w-20 h-9 bg-green-500 hover:bg-green-700 text-black"
+                    >Enter</Button>
+                </div>
+              </form>
+            </div>
+          </div>
+          {/if}
+        <!-- <Modal bind:open={popupModal_confirm} size="xs" autoclose class="w-1/2">
+          <form class="flex flex-col space-y-6" action="#">
+            <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white">
+              Confirm for a pin
+            </h3>
+            <Label class="space-y-2">
+              <span>Enter a pin</span>
+              <Input type="password" required />
+            </Label>
+            <div class="flex justify-center gap-64">
+              <Button color="red" 
+                >Enter</Button
+              >
+              <Button
+                color="alternative"
+                on:click={() => (popupModal_confirm = false)}>Close</Button
+              >
+            </div>
+          </form>
+        </Modal> -->
       </div>
     </form>
   </Card>
