@@ -72,13 +72,13 @@ func (a *app) startApp() error {
 		log.Printf("Stream may already exist: %v", err)
 	}
 
-	_, err = js.UpdateStream(&nats.StreamConfig{
-		Name:     "transaction_stream",
-		Subjects: []string{"transaction.created"},
-	})
-	if err != nil {
-		log.Printf("Stream may already exist or error: %v", err)
-	}
+	// _, err = js.UpdateStream(&nats.StreamConfig{
+	// 	Name:     "transaction_stream",
+	// 	Subjects: []string{"transaction.created"},
+	// })
+	// if err != nil {
+	// 	log.Printf("Stream may already exist or error: %v", err)
+	// }
 
 	// Initialize Transaction Service with JetStream
 	transactionService, err := logic.NewTransactionService(newDB, nc)

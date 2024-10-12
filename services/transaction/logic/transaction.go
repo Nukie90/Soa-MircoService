@@ -3,8 +3,11 @@ package logic
 import (
 	"microservice/entity"
 	"microservice/services/transaction/model"
+	"microservice/shared"
+	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt"
 	"github.com/nats-io/nats.go"
 	"gorm.io/gorm"
 )
@@ -83,7 +86,7 @@ func (ts *TransactionService) GetTransactionByID(ctx *fiber.Ctx) error {
 // CreateTransaction godoc
 //
 // @Summary		Create transaction
-// @Description	Create transaction
+// @Description	Create a new transaction between accounts
 // @Tags			transaction
 // @Accept			json
 // @Produce		json
@@ -98,20 +101,96 @@ func (ts *TransactionService) CreateTransaction(ctx *fiber.Ctx) error {
 		})
 	}
 
-	transaction := entity.Transaction{
-		SourceAccountID:      createTransaction.SourceAccountID,
-		DestinationAccountID: createTransaction.DestinationAccountID,
-		Amount:               createTransaction.Amount,
-	}
-
-	result := ts.db.Create(&transaction)
-	if result.Error != nil {
-		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": result.Error.Error(),
+	// Get token from header for authentication
+	tokenHeader := ctx.Get("Authorization")
+	if tokenHeader == "" {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Unauthorized",
 		})
 	}
 
-	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
-		"transaction": transaction,
+	token, err := jwt.Parse(tokenHeader, func(token *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv("JWT_SECRET")), nil
+	})
+	if err != nil || !token.Valid {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Invalid token",
+		})
+	}
+
+	// Validate transaction amount
+	if createTransaction.Amount <= 0 {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Transaction amount must be greater than zero.",
+		})
+	}
+
+	// Fetch source and destination accounts
+	var sourceAccount, destinationAccount entity.Account
+	if err := ts.db.Where("id = ?", createTransaction.SourceAccountID).First(&sourceAccount).Error; err != nil {
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "Source account not found.",
+		})
+	}
+
+	if err := ts.db.Where("id = ?", createTransaction.DestinationAccountID).First(&destinationAccount).Error; err != nil {
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "Destination account not found.",
+		})
+	}
+
+	// Check if source account has enough balance
+	if sourceAccount.Balance < createTransaction.Amount {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Insufficient balance.",
+		})
+	}
+
+	// Process transaction within a database transaction
+	err = ts.db.Transaction(func(tx *gorm.DB) error {
+		sourceAccount.Balance -= createTransaction.Amount
+		destinationAccount.Balance += createTransaction.Amount
+
+		if err := tx.Save(&sourceAccount).Error; err != nil {
+			return err
+		}
+		if err := tx.Save(&destinationAccount).Error; err != nil {
+			return err
+		}
+
+		// Create transaction record
+		transaction := entity.Transaction{
+			SourceAccountID:      createTransaction.SourceAccountID,
+			DestinationAccountID: createTransaction.DestinationAccountID,
+			Amount:               createTransaction.Amount,
+		}
+		if err := tx.Create(&transaction).Error; err != nil {
+			return err
+		}
+
+		// Publish transaction event
+		event := map[string]interface{}{
+			"ID":                   transaction.ID,
+			"sourceAccountID":      transaction.SourceAccountID,
+			"destinationAccountID": transaction.DestinationAccountID,
+			"amount":               transaction.Amount,
+		}
+		eventData, err := shared.MarshalToJSON(event)
+		if err != nil {
+			return err
+		}
+
+		_, err = ts.js.Publish("transaction.created", eventData)
+		return err
+	})
+
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	return ctx.Status(fiber.StatusCreated).JSON(fiber.Map{
+		"message": "Transaction completed successfully",
 	})
 }

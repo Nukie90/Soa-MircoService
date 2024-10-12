@@ -83,6 +83,11 @@ func (a *app) startApp() error {
 		log.Fatalf("Error subscribing to user.created events: %v", err)
 	}
 
+	// Subscribe to transaction.created events
+	if err := accountService.SubscribeToTransactionCreated(); err != nil {
+		log.Fatalf("Error subscribing to transaction.created events: %v", err)
+	}
+
 	accountLogic, err := logic.NewAccountService(newDB, nc)
 	if err != nil {
 		log.Fatalf("Error creating Account Service: %v", err)
