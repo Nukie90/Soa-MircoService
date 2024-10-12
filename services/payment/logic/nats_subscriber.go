@@ -120,3 +120,31 @@ func (ps *PaymentService) SubscribeToAccountDeleted() error {
 	log.Printf("Subscribed to account.deleted events with durable subscription: %s", subscription.Subject)
 	return nil
 }
+
+func (ps *PaymentService) SubscribeToAccountChangedPin() error {
+	// Create a durable subscription to JetStream for account.changedPin event
+	subscription, err := ps.js.Subscribe("account.changedPin", func(msg *nats.Msg) {
+		var accountPinChange entity.Account
+		if err := json.Unmarshal(msg.Data, &accountPinChange); err != nil {
+			log.Printf("Error unmarshalling account PIN change data: %v", err)
+			msg.Nak() // Acknowledge that the message could not be processed
+			return
+		}
+
+		// Assuming account PIN change involves updating the account's PIN in the Payment service database
+		if err := ps.db.Model(&entity.Account{}).Where("id = ?", accountPinChange.ID).Update("pin", accountPinChange.Pin).Error; err != nil {
+			log.Printf("Error updating account PIN in database: %v", err)
+			msg.Nak() // Acknowledge that the message could not be processed
+		} else {
+			log.Printf("Account PIN updated for account %s in Payment service database.", accountPinChange.ID)
+			msg.Ack() // Acknowledge successful processing
+		}
+	}, nats.Durable("payment_service_changed_pin_durable"))
+
+	if err != nil {
+		return err
+	}
+
+	log.Printf("Subscribed to account.changedPin events with durable subscription: %s", subscription.Subject)
+	return nil
+}

@@ -374,3 +374,113 @@ func (as *AccountService) DeleteAccount(ctx *fiber.Ctx) error {
 		"message": "Account deleted successfully",
 	})
 }
+
+// ChangePin godoc
+//
+// @Summary     Change account PIN
+// @Description Change the PIN of the account
+// @Tags        account
+// @Accept      json
+// @Produce     json
+// @Security    Bearer
+// @Param       changePin body model.ChangePinRequest true "Change PIN request"
+// @Router      /account/change-pin [put]
+func (as *AccountService) ChangePin(ctx *fiber.Ctx) error {
+	var changePinRequest model.ChangePinRequest
+
+	if err := ctx.BodyParser(&changePinRequest); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid request body",
+		})
+	}
+
+	// Get the token from the header
+	tokenHeader := ctx.Get("Authorization")
+	if tokenHeader == "" {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
+	token, err := jwt.Parse(tokenHeader, func(token *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv("JWT_SECRET")), nil
+	})
+	if err != nil {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Invalid token",
+		})
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Invalid token",
+		})
+	}
+
+	userID := claims["id"].(string)
+
+	// Fetch the account
+	var account entity.Account
+	result := as.db.Where("id = ? AND user_id = ?", changePinRequest.ID, userID).First(&account)
+	if result.Error != nil {
+		if result.Error == gorm.ErrRecordNotFound {
+			return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"error": "Account not found",
+			})
+		}
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": result.Error.Error(),
+		})
+	}
+
+	// Verify the old PIN
+	if !shared.CheckPasswordHash(changePinRequest.OldPin, account.Pin) {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Invalid old PIN",
+		})
+	}
+
+	// Hash the new PIN
+	hasher := shared.NewLocalConfig(10)
+	hashedNewPin, err := hasher.HashPassword(changePinRequest.NewPin)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	// Update the account's PIN
+	account.Pin = hashedNewPin
+	result = as.db.Save(&account)
+	if result.Error != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": result.Error.Error(),
+		})
+	}
+
+	// Publish NATS event
+	event := map[string]interface{}{
+		"ID":     account.ID,
+		"userID": account.UserID,
+		"pin":    account.Pin,
+		"type":   account.Type,
+	}
+
+	eventData, err := shared.MarshalToJSON(event)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Could not marshal event to JSON",
+		})
+	}
+
+	if _, err := as.js.Publish("account.changedPin", eventData); err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Could not publish event",
+		})
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "PIN changed successfully",
+	})
+}

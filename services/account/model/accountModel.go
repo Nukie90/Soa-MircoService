@@ -40,3 +40,9 @@ type TopUp struct {
 	ID     string  `json:"id"`
 	Amount float64 `json:"amount"`
 }
+
+type ChangePinRequest struct {
+	ID     string `json:"id" validate:"required"`
+	OldPin string `json:"old_pin" validate:"required"`
+	NewPin string `json:"new_pin" validate:"required"`
+}
