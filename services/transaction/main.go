@@ -91,6 +91,10 @@ func (a *app) startApp() error {
 		log.Fatalf("Error subscribing to account.updated events: %v", err)
 	}
 
+	if err := transactionService.SubscribeToAccountDeleted(); err != nil {
+		log.Fatalf("Error subscribing to account.deleted events: %v", err)
+	}
+
 	transactionLogic, err := logic.NewTransactionService(newDB, nc)
 
 	a.Use(cors.New(cors.Config{

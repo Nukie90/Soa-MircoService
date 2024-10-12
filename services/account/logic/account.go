@@ -276,3 +276,101 @@ func (as *AccountService) TopUp(ctx *fiber.Ctx) error {
 		"message": "Top up success",
 	})
 }
+
+// DeleteAccount godoc
+//
+// @Summary      Delete account
+// @Description  Delete account by verifying ID and PIN
+// @Tags         account
+// @Accept       json
+// @Produce      json
+// @Security     Bearer
+// @Param        deleteAccount body model.DeleteAccount true "Delete account information"
+// @Router       /account/delete [delete]
+func (as *AccountService) DeleteAccount(ctx *fiber.Ctx) error {
+	var deleteRequest model.DeleteAccount
+
+	if err := ctx.BodyParser(&deleteRequest); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid request body",
+		})
+	}
+
+	// Get the token from the header
+	tokenHeader := ctx.Get("Authorization")
+	if tokenHeader == "" {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
+	token, err := jwt.Parse(tokenHeader, func(token *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv("JWT_SECRET")), nil
+	})
+	if err != nil {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Invalid token",
+		})
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Invalid token",
+		})
+	}
+
+	userID := claims["id"].(string)
+
+	// Fetch the account from the database
+	var account entity.Account
+	result := as.db.Where("id = ? AND user_id = ?", deleteRequest.ID, userID).First(&account)
+	if result.Error != nil {
+		if result.Error == gorm.ErrRecordNotFound {
+			return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"error": "Account not found",
+			})
+		}
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": result.Error.Error(),
+		})
+	}
+
+	// Verify the PIN
+	if !shared.CheckPasswordHash(deleteRequest.Pin, account.Pin) {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Invalid PIN",
+		})
+	}
+
+	// Delete the account
+	if err := as.db.Delete(&account).Error; err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	// Publish event to NATS
+	event := map[string]interface{}{
+		"ID":     account.ID,
+		"userID": account.UserID,
+		"type":   account.Type,
+	}
+
+	eventData, err := shared.MarshalToJSON(event)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Could not marshal event to JSON",
+		})
+	}
+
+	if _, err := as.js.Publish("account.deleted", eventData); err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Could not publish event",
+		})
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Account deleted successfully",
+	})
+}

@@ -92,3 +92,31 @@ func (ps *PaymentService) SubscribeToAccountUpdated() error {
 	log.Printf("Subscribed to account.updated events with durable subscription: %s", subscription.Subject)
 	return nil
 }
+
+func (ps *PaymentService) SubscribeToAccountDeleted() error {
+	// Create a durable subscription to JetStream
+	subscription, err := ps.js.Subscribe("account.deleted", func(msg *nats.Msg) {
+		var deletedAccount entity.Account
+		if err := json.Unmarshal(msg.Data, &deletedAccount); err != nil {
+			log.Printf("Error unmarshalling account data: %v", err)
+			msg.Nak() // Acknowledge that the message could not be processed
+			return
+		}
+
+		// Delete the account from the Payment service's database
+		if err := ps.db.Delete(&deletedAccount).Error; err != nil {
+			log.Printf("Error deleting account from database: %v", err)
+			msg.Nak() // Acknowledge that the message could not be processed
+		} else {
+			log.Printf("Account %s deleted from Payment service database.", deletedAccount.ID)
+			msg.Ack() // Acknowledge successful processing
+		}
+	}, nats.Durable("payment_service_delete_durable"))
+
+	if err != nil {
+		return err
+	}
+
+	log.Printf("Subscribed to account.deleted events with durable subscription: %s", subscription.Subject)
+	return nil
+}

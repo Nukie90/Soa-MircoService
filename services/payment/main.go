@@ -92,6 +92,11 @@ func (a *app) startApp() error {
 		log.Fatalf("Error subscribing to account.updated events: %v", err)
 	}
 
+	// Subscribe to account.deleted events using JetStream
+	if err := paymentService.SubscribeToAccountDeleted(); err != nil {
+		log.Fatalf("Error subscribing to account.deleted events: %v", err)
+	}
+
 	paymentLogic, err := logic.NewPaymentService(newDB, nc)
 
 	a.Use(cors.New(cors.Config{
