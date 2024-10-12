@@ -13,6 +13,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"microservice/services/auth/logic"
 	"microservice/services/auth/route"
 	"microservice/shared"
@@ -22,6 +23,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/joho/godotenv"
+	"github.com/nats-io/nats.go"
 	fiberSwagger "github.com/swaggo/fiber-swagger"
 
 	_ "microservice/services/auth/docs"
@@ -50,13 +52,32 @@ func (a *App) StartApp() error {
 	}
 	defer nc.Close()
 
+	// Initialize JetStream
+	js, err := nc.JetStream()
+	if err != nil {
+		log.Fatalf("Error initializing JetStream: %v", err)
+	}
+
+	// Optional: Create a stream for storing messages
+	_, err = js.AddStream(&nats.StreamConfig{
+		Name:     "user_stream",
+		Subjects: []string{"user.created"},
+	})
+	if err != nil {
+		log.Fatalf("Error creating stream: %v", err)
+	}
+
 	db := shared.NewDatabase(computeID, password, dbName)
 
 	newDB, err := db.PostgresConnection()
 	if err != nil {
 		return err
 	}
-	authLogic := logic.NewAuthService(newDB, nc)
+
+	authLogic, err := logic.NewAuthService(newDB, nc)
+	if err != nil {
+		return err
+	}
 
 	a.Use(cors.New(cors.Config{
 		AllowCredentials: true,

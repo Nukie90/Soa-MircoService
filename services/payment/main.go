@@ -13,15 +13,18 @@ package main
 
 import (
 	"fmt"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/joho/godotenv"
-	fiberSwagger "github.com/swaggo/fiber-swagger"
+	"log"
 	"microservice/services/payment/logic"
 	"microservice/services/payment/route"
 	"microservice/shared"
 	"os"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/joho/godotenv"
+	"github.com/nats-io/nats.go"
+	fiberSwagger "github.com/swaggo/fiber-swagger"
 
 	_ "microservice/services/payment/docs"
 )
@@ -47,7 +50,40 @@ func (a *app) startApp() error {
 	if err != nil {
 		return err
 	}
-	accountLogic := logic.NewPaymentService(newDB)
+
+	nc, err := shared.ConnectNATS()
+	if err != nil {
+		return err
+	}
+	defer nc.Close()
+
+	// Initialize JetStream
+	js, err := nc.JetStream()
+	if err != nil {
+		log.Fatalf("Error initializing JetStream: %v", err)
+	}
+
+	// Create a stream for storing messages
+	_, err = js.AddStream(&nats.StreamConfig{
+		Name:     "user_stream",
+		Subjects: []string{"user.created"},
+	})
+	if err != nil {
+		log.Printf("Stream may already exist: %v", err)
+	}
+
+	// Initialize Payment Service with JetStream
+	paymentService, err := logic.NewPaymentService(newDB, nc)
+	if err != nil {
+		log.Fatalf("Error creating Account Service: %v", err)
+	}
+
+	// Subscribe to user.created events using JetStream
+	if err := paymentService.SubscribeToUserCreated(); err != nil {
+		log.Fatalf("Error subscribing to user.created events: %v", err)
+	}
+
+	paymentLogic, err := logic.NewPaymentService(newDB, nc)
 
 	a.Use(cors.New(cors.Config{
 		AllowCredentials: true,
@@ -57,7 +93,7 @@ func (a *app) startApp() error {
 	a.Use(logger.New())
 	a.Get("swagger/*", fiberSwagger.WrapHandler)
 
-	route.NewPaymentRoute(accountLogic).SetupPaymentRoute(a.App)
+	route.NewPaymentRoute(paymentLogic).SetupPaymentRoute(a.App)
 
 	if err := a.Listen(":3400"); err != nil {
 		return err
@@ -70,22 +106,6 @@ func main() {
 	if err := godotenv.Load(); err != nil {
 		fmt.Println("No .env file found")
 	}
-
-	nc, err := shared.ConnectNATS()
-	if err != nil {
-		return
-	}
-	defer nc.Close()
-
-	db := shared.NewDatabase(os.Getenv("DB_COMPUTE_ID"), os.Getenv("DB_PASSWORD"), os.Getenv("PAYMENT_NAME"))
-	newDB, err := db.PostgresConnection()
-	if err != nil {
-		return
-	}
-	userService := logic.NewPaymentService(newDB)
-
-	// Subscribe to user.created events
-	userService.SubscribeToUserCreated(nc)
 
 	app := newApp()
 	if err := app.startApp(); err != nil {

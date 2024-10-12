@@ -5,17 +5,21 @@ import (
 	"microservice/services/payment/model"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/nats-io/nats.go"
 	"gorm.io/gorm"
 )
 
 type PaymentService struct {
 	db *gorm.DB
+	js nats.JetStreamContext
 }
 
-func NewPaymentService(db *gorm.DB) *PaymentService {
-	return &PaymentService{
-		db: db,
+func NewPaymentService(db *gorm.DB, nc *nats.Conn) (*PaymentService, error) {
+	js, err := nc.JetStream()
+	if err != nil {
+		return nil, err
 	}
+	return &PaymentService{db: db, js: js}, nil
 }
 
 // GetAllPayment godoc

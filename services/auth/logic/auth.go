@@ -15,14 +15,16 @@ import (
 
 type AuthService struct {
 	db *gorm.DB
-	nc *nats.Conn
+	js nats.JetStreamContext
 }
 
-func NewAuthService(db *gorm.DB, nc *nats.Conn) *AuthService {
-	return &AuthService{
-		db: db,
-		nc: nc,
+// NewAuthService initializes the AuthService
+func NewAuthService(db *gorm.DB, nc *nats.Conn) (*AuthService, error) {
+	js, err := nc.JetStream() // Initialize JetStream context
+	if err != nil {
+		return nil, err
 	}
+	return &AuthService{db: db, js: js}, nil
 }
 
 // SignUp godoc
@@ -85,7 +87,17 @@ func (us *AuthService) SignUp(ctx *fiber.Ctx) error {
 		"address":   newUser.Address,
 		"birthDate": newUser.BirthDate,
 	}
-	if err := us.nc.Publish("user.created", shared.MarshalToJSON(event)); err != nil {
+
+	// Marshal the event to JSON
+	eventData, err := shared.MarshalToJSON(event)
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Could not marshal event to JSON",
+		})
+	}
+
+	// Publish the user created event to JetStream
+	if _, err := us.js.Publish("user.created", eventData); err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Could not publish event",
 		})

@@ -13,6 +13,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	_ "microservice/services/user/docs"
 	"microservice/services/user/logic"
 	"microservice/services/user/route"
@@ -23,6 +24,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/joho/godotenv"
+	"github.com/nats-io/nats.go"
 	fiberSwagger "github.com/swaggo/fiber-swagger"
 )
 
@@ -48,7 +50,40 @@ func (a *App) StartApp() error {
 	if err != nil {
 		return err
 	}
-	userlogic := logic.NewUserService(newDB)
+
+	nc, err := shared.ConnectNATS()
+	if err != nil {
+		return err
+	}
+	defer nc.Close()
+
+	// Initialize JetStream
+	js, err := nc.JetStream()
+	if err != nil {
+		log.Fatalf("Error initializing JetStream: %v", err)
+	}
+
+	// Create a stream for storing messages
+	_, err = js.AddStream(&nats.StreamConfig{
+		Name:     "user_stream",
+		Subjects: []string{"user.created"},
+	})
+	if err != nil {
+		log.Printf("Stream may already exist: %v", err)
+	}
+
+	// Initialize Account Service with JetStream
+	accountService, err := logic.NewUserService(newDB, nc)
+	if err != nil {
+		log.Fatalf("Error creating User Service: %v", err)
+	}
+
+	// Subscribe to user.created events using JetStream
+	if err := accountService.SubscribeToUserCreated(); err != nil {
+		log.Fatalf("Error subscribing to user.created events: %v", err)
+	}
+
+	userlogic, err := logic.NewUserService(newDB, nc)
 
 	a.Use(cors.New(cors.Config{
 		AllowCredentials: true,
@@ -73,22 +108,6 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-
-	nc, err := shared.ConnectNATS()
-	if err != nil {
-		return
-	}
-	defer nc.Close()
-
-	db := shared.NewDatabase(os.Getenv("DB_COMPUTE_ID"), os.Getenv("DB_PASSWORD"), os.Getenv("USER_NAME"))
-	newDB, err := db.PostgresConnection()
-	if err != nil {
-		return
-	}
-	userService := logic.NewUserService(newDB)
-
-	// Subscribe to user.created events
-	userService.SubscribeToUserCreated(nc)
 
 	app := NewApp()
 	err = app.StartApp()

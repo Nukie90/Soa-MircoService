@@ -2,22 +2,27 @@ package logic
 
 import (
 	"fmt"
-	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt"
-	"gorm.io/gorm"
 	"microservice/entity"
 	"microservice/services/user/model"
 	"os"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt"
+	"github.com/nats-io/nats.go"
+	"gorm.io/gorm"
 )
 
 type UserService struct {
 	db *gorm.DB
+	js nats.JetStreamContext
 }
 
-func NewUserService(db *gorm.DB) *UserService {
-	return &UserService{
-		db: db,
+func NewUserService(db *gorm.DB, nc *nats.Conn) (*UserService, error) {
+	js, err := nc.JetStream()
+	if err != nil {
+		return nil, err
 	}
+	return &UserService{db: db, js: js}, nil
 }
 
 // GetAllUser godoc

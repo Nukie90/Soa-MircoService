@@ -9,17 +9,21 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt"
+	"github.com/nats-io/nats.go"
 	"gorm.io/gorm"
 )
 
 type AccountService struct {
 	db *gorm.DB
+	js nats.JetStreamContext
 }
 
-func NewAccountService(db *gorm.DB) *AccountService {
-	return &AccountService{
-		db: db,
+func NewAccountService(db *gorm.DB, nc *nats.Conn) (*AccountService, error) {
+	js, err := nc.JetStream()
+	if err != nil {
+		return nil, err
 	}
+	return &AccountService{db: db, js: js}, nil
 }
 
 // GetAllAccount godoc

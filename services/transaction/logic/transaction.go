@@ -5,17 +5,21 @@ import (
 	"microservice/services/transaction/model"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/nats-io/nats.go"
 	"gorm.io/gorm"
 )
 
 type TransactionService struct {
 	db *gorm.DB
+	js nats.JetStreamContext
 }
 
-func NewTransactionService(db *gorm.DB) *TransactionService {
-	return &TransactionService{
-		db: db,
+func NewTransactionService(db *gorm.DB, nc *nats.Conn) (*TransactionService, error) {
+	js, err := nc.JetStream()
+	if err != nil {
+		return nil, err
 	}
+	return &TransactionService{db: db, js: js}, nil
 }
 
 // GetAllTransaction godoc

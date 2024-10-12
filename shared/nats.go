@@ -24,11 +24,7 @@ func ConnectNATS() (*nats.Conn, error) {
 	return nc, nil
 }
 
-func MarshalToJSON(data interface{}) []byte {
-	jsonData, err := json.Marshal(data)
-	if err != nil {
-		log.Printf("Error marshalling to JSON: %v", err)
-		return nil
-	}
-	return jsonData
+// MarshalToJSON marshals the input data to JSON
+func MarshalToJSON(data interface{}) ([]byte, error) {
+	return json.Marshal(data)
 }

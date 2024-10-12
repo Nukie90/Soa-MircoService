@@ -13,6 +13,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"microservice/services/transaction/logic"
 	"microservice/services/transaction/route"
 	"microservice/shared"
@@ -22,6 +23,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/joho/godotenv"
+	"github.com/nats-io/nats.go"
 	fiberSwagger "github.com/swaggo/fiber-swagger"
 
 	_ "microservice/services/transaction/docs"
@@ -48,7 +50,40 @@ func (a *app) startApp() error {
 	if err != nil {
 		return err
 	}
-	accountLogic := logic.NewTransactionService(newDB)
+
+	nc, err := shared.ConnectNATS()
+	if err != nil {
+		return err
+	}
+	defer nc.Close()
+
+	// Initialize JetStream
+	js, err := nc.JetStream()
+	if err != nil {
+		log.Fatalf("Error initializing JetStream: %v", err)
+	}
+
+	// Create a stream for storing messages
+	_, err = js.AddStream(&nats.StreamConfig{
+		Name:     "user_stream",
+		Subjects: []string{"user.created"},
+	})
+	if err != nil {
+		log.Printf("Stream may already exist: %v", err)
+	}
+
+	// Initialize Transaction Service with JetStream
+	transactionService, err := logic.NewTransactionService(newDB, nc)
+	if err != nil {
+		log.Fatalf("Error creating Account Service: %v", err)
+	}
+
+	// Subscribe to user.created events using JetStream
+	if err := transactionService.SubscribeToUserCreated(); err != nil {
+		log.Fatalf("Error subscribing to user.created events: %v", err)
+	}
+
+	transactionLogic, err := logic.NewTransactionService(newDB, nc)
 
 	a.Use(cors.New(cors.Config{
 		AllowCredentials: true,
@@ -58,7 +93,7 @@ func (a *app) startApp() error {
 	a.Use(logger.New())
 	a.Get("swagger/*", fiberSwagger.WrapHandler)
 
-	route.NewTransactionRoute(accountLogic).SetupTransactionRoute(a.App)
+	route.NewTransactionRoute(transactionLogic).SetupTransactionRoute(a.App)
 
 	if err := a.Listen(":3300"); err != nil {
 		return err
@@ -71,22 +106,6 @@ func main() {
 	if err := godotenv.Load(); err != nil {
 		fmt.Println("No ..env file found")
 	}
-
-	nc, err := shared.ConnectNATS()
-	if err != nil {
-		return
-	}
-	defer nc.Close()
-
-	db := shared.NewDatabase(os.Getenv("DB_COMPUTE_ID"), os.Getenv("DB_PASSWORD"), os.Getenv("TRANSACTION_NAME"))
-	newDB, err := db.PostgresConnection()
-	if err != nil {
-		return
-	}
-	userService := logic.NewTransactionService(newDB)
-
-	// Subscribe to user.created events
-	userService.SubscribeToUserCreated(nc)
 
 	app := newApp()
 	if err := app.startApp(); err != nil {

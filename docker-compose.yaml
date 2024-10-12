@@ -22,7 +22,7 @@ services:
       - "3100:3100"
     env_file: "./env/.env"
     environment:
-      - NATS_URL=nats://nats:4222  # Add this line to connect to NATS
+      - NATS_URL=nats://nats:4222
     depends_on:
       - nats
 
@@ -35,7 +35,7 @@ services:
       - "3200:3200"
     env_file: "./env/.env"
     environment:
-      - NATS_URL=nats://nats:4222  # Add this line to connect to NATS
+      - NATS_URL=nats://nats:4222
     depends_on:
       - nats
 
@@ -48,7 +48,7 @@ services:
       - "3300:3300"
     env_file: "./env/.env"
     environment:
-      - NATS_URL=nats://nats:4222  # Add this line to connect to NATS
+      - NATS_URL=nats://nats:4222
     depends_on:
       - nats
 
@@ -61,7 +61,7 @@ services:
       - "3400:3400"
     env_file: "./env/.env"
     environment:
-      - NATS_URL=nats://nats:4222  # Add this line to connect to NATS
+      - NATS_URL=nats://nats:4222
     depends_on:
       - nats
   
@@ -74,12 +74,13 @@ services:
       - "3500:3500"
     env_file: "./env/.env"
     environment:
-      - NATS_URL=nats://nats:4222  # Add this line to connect to NATS
+      - NATS_URL=nats://nats:4222
     depends_on:
       - nats
   
   nats:
     image: nats
+    container_name: nats
     ports:
       - "4222:4222"
-    container_name: nats
+    command: ["-js"]  # Enables JetStream
