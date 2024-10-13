@@ -85,8 +85,14 @@ services:
       context: .
       dockerfile: frontend/Dockerfile.frontend
     container_name: frontend-service
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     ports:
       - "5000:5000"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    command: npm run dev
 
   nats:
     image: nats
