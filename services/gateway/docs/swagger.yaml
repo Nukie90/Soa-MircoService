@@ -25,6 +25,15 @@ definitions:
       type:
         type: string
     type: object
+  model.CreatePayment:
+    properties:
+      amount:
+        type: number
+      referenceCode:
+        type: string
+      sourceAccountID:
+        type: string
+    type: object
   model.CreateTransaction:
     properties:
       amount:
@@ -181,6 +190,31 @@ paths:
       summary: Forward change pin request to account service
       tags:
       - account
+  /account/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Forward get account by ID request to account service
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Account
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+      summary: Forward get account by ID request to account service
+      tags:
+      - account
   /account/topup:
     put:
       consumes:
@@ -308,6 +342,71 @@ paths:
       summary: Get token
       tags:
       - auth
+  /payment/:
+    get:
+      consumes:
+      - application/json
+      description: Forward get all payment request to payment service
+      produces:
+      - application/json
+      responses: {}
+      summary: Forward get all payment request to payment service
+      tags:
+      - payment
+    post:
+      consumes:
+      - application/json
+      description: Forward create payment request to payment service
+      parameters:
+      - description: Payment information
+        in: body
+        name: payment
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreatePayment'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Payment created successfully
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Forward create payment request to payment service
+      tags:
+      - payment
+  /payment/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Forward get payment by ID request to payment service
+      parameters:
+      - description: Payment ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Payment information
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Forward get payment by ID request to payment service
+      tags:
+      - payment
   /transaction/:
     get:
       consumes:

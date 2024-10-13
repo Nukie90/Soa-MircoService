@@ -38,6 +38,12 @@ func SetupRoute(app *fiber.App) {
 			transaction.Get("/", logic.ForwardGetAllTransaction)
 			transaction.Get("/:id", logic.ForwardGetTransactionByID)
 		}
+		payment := v1.Group("/payment", shared.AuthenticateUser)
+		{
+			payment.Get("/", logic.ForwardGetAllPayment)
+			payment.Post("/", logic.ForwardCreatePayment)
+			payment.Get("/:id", logic.ForwardGetPaymentByID)
+		}
 	}
 
 }

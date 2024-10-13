@@ -38,8 +38,37 @@ func ForwardGetAllAccount(ctx *fiber.Ctx) error {
 	return ctx.Status(resp.StatusCode).Send(body)
 }
 
+// ForwardGetAccountByID godoc
+//
+// @Summary		Forward get account by ID request to account service
+// @Description	Forward get account by ID request to account service
+// @Tags			account
+// @Accept			json
+// @Produce		json
+// @Param			id	path	string	true	"User ID"
+// @Success		200		{string}	string	"Account"
+// @Failure		400		{string}	string	"Bad request"
+//
+// @Router			/account/{id} [get]
 func ForwardGetAccountByID(ctx *fiber.Ctx) error {
-	return nil
+	fmt.Println("calling account service")
+	resp, err := http.Get("http://account-service:3200/api/v1/account/" + ctx.Params("id"))
+	if err != nil {
+		return err
+	}
+
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode != 200 {
+		return ctx.Status(resp.StatusCode).Send(body)
+	}
+
+	return ctx.Status(resp.StatusCode).Send(body)
 }
 
 // ForwardCreateAccount godoc

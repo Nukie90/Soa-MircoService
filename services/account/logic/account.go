@@ -73,16 +73,27 @@ func (as *AccountService) GetAllAccount(ctx *fiber.Ctx) error {
 // @Router			/account/{id} [get]
 func (as *AccountService) GetAccountByID(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
-	var account entity.Account
-	result := as.db.Where("id = ?", id).First(&account)
+	var account []entity.Account
+	result := as.db.Find(&account, id)
 	if result.Error != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": result.Error.Error(),
 		})
 	}
 
+	var accountModel []model.AccountInfo
+	for _, acc := range account {
+		accountModel = append(accountModel, model.AccountInfo{
+			ID:      acc.ID,
+			UserID:  acc.UserID,
+			Type:    acc.Type,
+			Balance: acc.Balance,
+			Pin:     acc.Pin,
+		})
+	}
+
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
-		"account": account,
+		"accounts": accountModel,
 	})
 }
 

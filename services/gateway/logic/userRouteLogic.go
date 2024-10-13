@@ -122,7 +122,7 @@ func GetToken(ctx *fiber.Ctx) error {
 // @Router			/users/all [get]
 func ForwardGetAllUser(ctx *fiber.Ctx) error {
 	fmt.Println("call all user")
-	resp, err := http.Get("http://user-service:3100/api/v1/users")
+	resp, err := http.Get("http://user-service:3100/api/v1/users/all")
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
@@ -156,7 +156,7 @@ func ForwardGetAllUser(ctx *fiber.Ctx) error {
 //
 // @Router			/users/all/{id} [get]
 func ForwardGetUserByID(ctx *fiber.Ctx) error {
-	resp, err := http.Get("http://user-service:3100/api/v1/users/" + ctx.Params("id"))
+	resp, err := http.Get("http://user-service:3100/api/v1/users/all/" + ctx.Params("id"))
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
