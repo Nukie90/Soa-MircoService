@@ -11,7 +11,7 @@
     // Check for the presence of a specific cookie
     const cookies = document.cookie.split(";").map((cookie) => cookie.trim());
     const authCookie = cookies.find((cookie) =>
-      cookie.startsWith("esb_token=")
+      cookie.startsWith("Authorization=")
     );
 
     loggedIn = !!authCookie;
@@ -31,7 +31,7 @@
     event.preventDefault();
     try {
       const response = await axios.post(
-        "http://127.0.0.1:4000/esb/login",
+        "http://127.0.0.1:3000/api/v1/auth/login",
         {
           id: idcard,
           password: password,

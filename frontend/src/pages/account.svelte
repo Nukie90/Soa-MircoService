@@ -32,7 +32,7 @@
     // Check for the presence of a specific cookie
     const cookies = document.cookie.split(";").map((cookie) => cookie.trim());
     const authCookie = cookies.find((cookie) =>
-      cookie.startsWith("esb_token=")
+      cookie.startsWith("Authorization=")
     );
 
     loggedIn = !!authCookie;
@@ -44,7 +44,7 @@
       alert("You have no account");
       return;
     }
-    navigate(`/changepin?accountId=${selectedAccount.id}`);
+    navigate(`/changepin?accountId=${selectedAccount.ID}`);
   }
 
   onMount(() => {
@@ -53,7 +53,7 @@
       navigate("/");
     }
 
-    const token = getCookie("esb_token");
+    const token = getCookie("Authorization");
     if (token) {
       fetchData(token);
     }
@@ -68,37 +68,37 @@
   async function fetchData(token) {
     try {
       // Set the token as a cookie
-      document.cookie = `esb_token=${token}; path=/;`;
+      document.cookie = `Authorization=${token}; path=/;`;
 
       const accResponse = await axios.get(
-        "http://127.0.0.1:4000/esb/accounts/clientAcc",
+        `http://127.0.0.1:3000/api/v1/account/getAccountsByUserID`,
         {
           withCredentials: true, // Ensure credentials are sent with the request
           headers: {
-            esb_token: `Bearer ${token}`,
+            Authorization: `${token}`,
           },
         }
       );
 
       const userResponse = await axios.get(
-        "http://127.0.0.1:4000/esb/clients/info",
+        "http://127.0.0.1:3000/api/v1/users/me",
         {
           withCredentials: true, // Ensure credentials are sent with the request
           headers: {
-            esb_token: `Bearer ${token}`,
+            Authorization: `${token}`,
           },
         }
       );
 
-      accountData = accResponse.data;
+      accountData = accResponse.data.accounts;
       // console.log('accountData:', accountData);
 
-      userData = userResponse.data;
+      userData = userResponse.data.user;
       // console.log('userData:', userData);
 
       if (accountData.length > 0){
         selectedAccount = accountData[0]
-        currentAccount.set(accountData[0].id)
+        currentAccount.set(accountData[0].ID)
       } else {
         selectedAccount = null
         currentAccount.set(null)
@@ -111,10 +111,10 @@
   }
 
   function switchAccount(accountNumber) {
-    selectedAccount = accountData.find((account) => account.id === accountNumber);
-    console.log("switchAccout called: " + selectedAccount.id);
+    selectedAccount = accountData.find((account) => account.ID === accountNumber);
+    console.log("switchAccout called: " + selectedAccount.ID);
     
-    currentAccount.set(selectedAccount.id);
+    currentAccount.set(selectedAccount.ID);
     console.log("currentAccount: " + get(currentAccount));
   }
 
@@ -141,7 +141,7 @@
       .delete("http://127.0.0.1:4000/esb/accounts/delete", {
         withCredentials: true, // Ensure credentials are sent with the request
         data: {
-          id: selectedAccount.id, // Pass the selected account ID
+          id: selectedAccount.ID, // Pass the selected account ID
           pin: enteredPin, // Pass the entered PIN
         },
       })
@@ -174,7 +174,7 @@
             class="mb-3 font-normal text-base text-gray-700 dark:text-gray-400 leading-tight"
           >
             {userData && selectedAccount
-              ? `${selectedAccount.id || "xxxxx"}`
+              ? `${selectedAccount.ID || "xxxxx"}`
               : "xxxxx"}
           </h6>
         </div>
@@ -187,9 +187,9 @@
               {#each accountData as account}
                 <DropdownItem
                   class="bg-white hover:bg-slate-50 text-gray-700"
-                  on:click={() => switchAccount(account.id)}
+                  on:click={() => switchAccount(account.ID)}
                 >
-                  {account.id}
+                  {account.ID}
                 </DropdownItem>
               {/each}
             {:else}
@@ -219,7 +219,7 @@
             >
             <span class="text-xl font-medium text-white block mt-4">
               {userData && selectedAccount
-                ? `${selectedAccount.balance || 0} ฿`
+                ? `${selectedAccount.Balance || 0} ฿`
                 : "0 ฿"}
             </span>
           </div>

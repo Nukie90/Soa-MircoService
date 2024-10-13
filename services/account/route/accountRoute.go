@@ -21,12 +21,13 @@ func (ar *AccountRoute) SetupAccountRoute(app *fiber.App) {
 	account := v1.Group("/account")
 	{
 		account.Get("/", ar.accountLogic.GetAllAccount)
-		account.Get("/:id", ar.accountLogic.GetAccountByID)
+		account.Get("/id/:id", ar.accountLogic.GetAccountByID)
 		account.Post("/", ar.accountLogic.CreateAccount)
 		account.Put("/topup", ar.accountLogic.TopUp)
 		account.Put("/", ar.accountLogic.ChangePin)
 		account.Delete("/", ar.accountLogic.DeleteAccount)
 		account.Post("/verify", ar.accountLogic.VerifyAccount)
+		account.Get("/getAccountsByUserID", ar.accountLogic.GetAccountsByUserID)
 	}
 
 }

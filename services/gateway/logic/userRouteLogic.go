@@ -80,7 +80,9 @@ func ForwardLogin(ctx *fiber.Ctx) error {
 	ctx.Cookie(&fiber.Cookie{
 		Name:     "Authorization",
 		Value:    token,
-		HTTPOnly: true,
+		HTTPOnly: false,  // Prevents client-side JS from accessing the cookie
+		SameSite: "None", // Controls when the cookie is sent (Lax or None for cross-origin)
+		Secure:   true,   // Set to true in HTTPS environments
 	})
 
 	return ctx.Send(respBody)

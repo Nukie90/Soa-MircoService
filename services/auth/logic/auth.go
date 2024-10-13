@@ -158,9 +158,12 @@ func (us *AuthService) Login(ctx *fiber.Ctx) error {
 	}
 
 	ctx.Cookie(&fiber.Cookie{
-		Name:    "jwt",
-		Value:   tokenString,
-		Expires: time.Now().Add(time.Hour * 24),
+		Name:     "Authorization",
+		Value:    tokenString,
+		Expires:  time.Now().Add(time.Hour * 24), // 1-day expiration
+		HTTPOnly: false,                          // Prevents client-side JS from accessing the cookie
+		SameSite: "None",                         // Controls when the cookie is sent (Lax or None for cross-origin)
+		Secure:   true,                           // Set to true in HTTPS environments
 	})
 
 	//set auth token from user service to gateway in header

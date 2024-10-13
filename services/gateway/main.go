@@ -30,7 +30,7 @@ func SetupGateway() error {
 	app.Use(logger.New())
 	app.Use(cors.New(cors.Config{
 		AllowCredentials: true,
-		AllowOrigins:     "http://127.0.0.1:3100, http://localhost:3100",
+		AllowOrigins:     "http://127.0.0.1:3100, http://localhost:3100, http://127.0.0.1:5000, http://localhost:5000",
 		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
 		AllowMethods:     "GET,POST,PUT,DELETE",
 	}))

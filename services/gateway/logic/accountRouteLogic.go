@@ -3,9 +3,10 @@ package logic
 import (
 	"bytes"
 	"fmt"
-	"github.com/gofiber/fiber/v2"
 	"io"
 	"net/http"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 // ForwardGetAllAccount godoc
@@ -259,6 +260,46 @@ func ForwardVerifyAccount(ctx *fiber.Ctx) error {
 
 	req.Header.Set("Authorization", tokenString)
 	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := account.Do(req)
+	if err != nil {
+		return err
+	}
+
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	return ctx.Status(resp.StatusCode).Send(body)
+}
+
+// ForwardGetAccountsByUserID godoc
+//
+// @Summary      Forward get accounts by user ID request to account service
+// @Description  Forward get accounts by user ID request to account service
+// @Tags         account
+// @Accept       json
+// @Produce      json
+// @Param        user_id  query  string  true  "User ID"
+// @Success      200      {string}  string  "List of accounts"
+// @Failure      400      {string}  string  "Bad request"
+// @Failure      404      {string}  string  "Accounts not found"
+// @Router       /account/getAccountsByUserID [get]
+func ForwardGetAccountsByUserID(ctx *fiber.Ctx) error {
+	tokenString := ctx.Cookies("Authorization")
+
+	account := &http.Client{}
+	req, err := http.NewRequest("GET", "http://account-service:3200/api/v1/account/getAccountsByUserID", bytes.NewReader(ctx.Body()))
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Authorization", tokenString)
+	req.Header.Set("Content-Type", "application/json")
+	defer req.Body.Close()
 
 	resp, err := account.Do(req)
 	if err != nil {

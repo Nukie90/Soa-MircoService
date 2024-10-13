@@ -26,11 +26,12 @@ func SetupRoute(app *fiber.App) {
 		{
 			account.Get("/", logic.ForwardGetAllAccount)
 			account.Post("/", logic.ForwardCreateAccount)
-			account.Get("/:id", logic.ForwardGetAccountByID)
+			account.Get("/id/:id", logic.ForwardGetAccountByID)
 			account.Put("/topup", logic.ForwardTopUp)
 			account.Put("/", logic.ForwardChangePin)
 			account.Delete("/", logic.ForwardDeleteAccount)
 			account.Post("/verify", logic.ForwardVerifyAccount)
+			account.Get("/getAccountsByUserID", logic.ForwardGetAccountsByUserID)
 		}
 		transaction := v1.Group("/transaction", shared.AuthenticateUser)
 		{

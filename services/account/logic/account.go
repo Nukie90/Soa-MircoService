@@ -564,3 +564,70 @@ func (as *AccountService) VerifyAccount(ctx *fiber.Ctx) error {
 		"message": "Account verified",
 	})
 }
+
+// GetAccountsByUserID godoc
+//
+// @Summary      Get accounts by user ID from cookie
+// @Description  Retrieve all accounts for the logged-in user using the user ID from JWT in the cookie
+// @Tags         account
+// @Accept       json
+// @Produce      json
+// @Security     Bearer
+// @Router       /account/user [get]
+func (as *AccountService) GetAccountsByUserID(ctx *fiber.Ctx) error {
+	// Get the token from the header
+	tokenHeader := ctx.Get("Authorization")
+	if tokenHeader == "" {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
+	token, err := jwt.Parse(tokenHeader, func(token *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv("JWT_SECRET")), nil
+	})
+	if err != nil {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Invalid token",
+		})
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Invalid token",
+		})
+	}
+
+	userID, ok := claims["id"].(string)
+	if !ok {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "User ID not found in token",
+		})
+	}
+
+	// Query the accounts belonging to the user
+	var accounts []entity.Account
+	result := as.db.Where("user_id = ?", userID).Find(&accounts)
+	if result.Error != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": result.Error.Error(),
+		})
+	}
+
+	// Map the accounts to the response model
+	var accountModels []model.AccountInfo
+	for _, account := range accounts {
+		accountModels = append(accountModels, model.AccountInfo{
+			ID:      account.ID,
+			UserID:  account.UserID,
+			Type:    account.Type,
+			Balance: account.Balance,
+			Pin:     account.Pin,
+		})
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"accounts": accountModels,
+	})
+}
