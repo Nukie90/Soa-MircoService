@@ -80,6 +80,14 @@ services:
     depends_on:
       - nats
 
+  frontend-service:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile.frontend
+    container_name: frontend-service
+    ports:
+      - "5000:5000"
+
   nats:
     image: nats
     container_name: nats
