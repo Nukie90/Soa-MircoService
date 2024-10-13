@@ -2,6 +2,8 @@
   import { Router, Route, Link } from "svelte-routing";
   import Account from "../../account/src/App.svelte"; // Account frontend
   import Transfer from "../../transfer/src/App.svelte"; // Transfer frontend
+  import Deposit from "../../deposit/src/App.svelte"; // Account frontend
+  import Withdrawal from "../../withdrawal/src/App.svelte"; // Transfer frontend
   import Payment from "../../payment/src/App.svelte"; // Payment frontend
   import Statement from "../../statement/src/App.svelte"; // Statement frontend
 </script>
@@ -33,6 +35,8 @@
         <Route path="/" component={Transfer} />
         <Route path="/payment" component={Payment} />
         <Route path="/statement" component={Statement} />
+        <Route path="/deposit" component={Deposit} />
+        <Route path="/withdrawal" component={Withdrawal} />
       </div>
     </div>
   </div>

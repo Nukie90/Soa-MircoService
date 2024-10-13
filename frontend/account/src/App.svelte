@@ -10,11 +10,20 @@
   let selectedAccount = null;
   let pin = ""; 
   let popupModal_login = false; 
-  let popupModal_signup = false; 
+  let popupModal_signup = false;
+  let popupModal_addaccount = false; 
   let popupModal_accountregister = false;
   let popupModal_topup = false;
   let popupModal_changepin = false;
   let popupModal_askdelete = false;
+
+  function openAddAccountModal() {
+    popupModal_addaccount = true;
+  }
+
+  function closeAddAccountModal() {
+    popupModal_addaccount = false;
+  }
 
   function openLoginModal() {
     popupModal_login = true;
@@ -103,38 +112,47 @@
           </Button>
 
           <!-- if not login -->
-          <!-- <Dropdown>
-            <div slot="header" class="px-4 py-2 bg-blue-500 rounded-t-lg">
-              <span class="block text-sm text-gray-900 dark:text-white font-semibold">John Doe</span>
-            </div>
-            <DropdownItem>
-              <Button on:click={openLoginModal} class="w-full text-left">Login</Button> 
-            </DropdownItem>
-            <DropdownItem>
-              <Button on:click={openSignupModal} class="w-full text-left">Signup</Button> 
-            </DropdownItem>
-          </Dropdown> -->
-
-          <!-- if login -->
           <Dropdown>
             <div slot="header" class="px-4 py-2 bg-blue-500 rounded-t-lg">
               <span class="block text-sm text-gray-900 dark:text-white font-semibold">John Doe</span>
             </div>
-            <DropdownItem>
-              <Button on:click={openTopupModal} class="w-40 text-left">Top up</Button> 
+            <DropdownItem class="bg-white">
+              <Button on:click={openLoginModal} class="w-40 h-9 bg-[#cccccc] hover:bg-slate-100 text-black">Login</Button> 
             </DropdownItem>
-            <DropdownItem class="flex items-center justify-between">
-              Dropdown<ChevronRightOutline class="ms-2 text-primary-700 dark:text-white" style="height: 30px;" />
-            </DropdownItem>
-            <Dropdown placement="right-start">
-              <DropdownItem>Acc1</DropdownItem>
-              <DropdownItem>Acc2</DropdownItem>
-              <DropdownItem>Acc3</DropdownItem>
-            </Dropdown>
-            <DropdownItem slot="footer">
-              <Button class="w-full text-left">Log out</Button> 
+            <DropdownItem class="bg-white">
+              <Button on:click={openSignupModal} class="w-40 h-9 bg-[#cccccc] hover:bg-slate-100 text-black">Signup</Button> 
             </DropdownItem>
           </Dropdown>
+
+          <!-- if login -->
+          <!-- <Dropdown class="bg-white">
+            <div slot="header" class="px-4 py-2 bg-blue-500 rounded-t-lg">
+              <span class="block text-sm text-gray-900 dark:text-white font-semibold">John Doe</span>
+            </div>
+            <DropdownItem class="bg-white">
+              <Button on:click={openTopupModal} class="w-40 h-9 bg-[#cccccc] hover:bg-slate-100 text-black">Top up</Button> 
+            </DropdownItem>
+            <DropdownItem class="w-40 h-9 bg-[#cccccc] hover:bg-slate-100 text-black flex items-center justify-between">
+              View account<ChevronRightOutline class="ms-2 text-primary-700 dark:text-white" style="height: 30px;" />
+            </DropdownItem>
+            <Dropdown placement="right-start" class="w-24">
+              <DropdownItem class="bg-white">
+                <Button class="w-40 h-9 bg-[#cccccc] hover:bg-slate-100 text-black" on:click={openAddAccountModal}>Add new account</Button>
+              </DropdownItem>
+              <DropdownItem class="bg-white">
+                <Button class="w-40 h-9 bg-[#cccccc] hover:bg-slate-100 text-black">Acc 1</Button>
+              </DropdownItem>
+              <DropdownItem class="bg-white">
+                <Button class="w-40 h-9 bg-[#cccccc] hover:bg-slate-100 text-black">Acc 2</Button>
+              </DropdownItem>
+              <DropdownItem class="bg-white">
+                <Button class="w-40 h-9 bg-[#cccccc] hover:bg-slate-100 text-black">Acc 3</Button>
+              </DropdownItem>
+            </Dropdown>
+            <DropdownItem slot="footer" class="bg-white">
+              <Button class="w-40 h-9 bg-[#cccccc] hover:bg-slate-100 text-black">Log out</Button> 
+            </DropdownItem>
+          </Dropdown> -->
         </div>
       </div>
       <div class="flex flex-1 items-center justify-center">
@@ -243,6 +261,33 @@
               <Input type="password" name="confirmpin" class="bg-blue-500 px-4 py-2" required />
             </Label>
             <Button type="submit" class="w-full bg-[#28A745] hover:bg-[#28A745] hover:opacity-70">Register</Button>
+          </form>
+        </div>
+      </div>
+    {/if}
+
+    {#if popupModal_addaccount}
+      <div class="fixed inset-0 flex items-center z-50">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-96 relative" style="left: 400%;">
+          <h3 class="text-3xl font-bold text-black text-center mb-4">Add Account</h3>
+          <form on:submit={registerAccount} class="flex flex-col space-y-4">
+            <Label class="space-y-2">
+              <div class="text-xs text-black mb-2 mr-4 w-full">
+                Type
+                <Select name="acctype" class="bg-blue-500 px-4 py-2">
+                    <option value="Saving">Saving</option>
+                    <option value="Credit">Credit</option>
+                    <option value="Interest">Interest</option>
+                    <option value="Loan">Loan</option>
+                </Select>
+              </div>
+            </Label>
+            <Label class="space-y-2">
+              <span class="text-gray-400">Enter a 6 digit pin</span>
+              <Input type="password" name="pin" bind:value={pin} class="bg-blue-500 px-4 py-2" required />
+            </Label>
+            <Button type="submit" class="w-full bg-[#28A745] hover:bg-[#28A745] hover:opacity-70">Register</Button>
+            <Button on:click={closeAddAccountModal} class="w-full bg-red-400 hover:bg-red-700 hover:opacity-70">Cancel</Button>
           </form>
         </div>
       </div>
