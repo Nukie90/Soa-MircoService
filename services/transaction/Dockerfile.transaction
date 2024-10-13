@@ -11,16 +11,15 @@ COPY ../../go.mod ../../go.sum ./
 RUN go mod download
 
 # Copy the entire `transaction` directory
-COPY services/transaction/ ./
+COPY services/transaction/ ./services/transaction
 
 # Copy the `db` and `shared` directories outside the `transaction` directory
 COPY ../../shared ./shared
 COPY ../../entity ./entity
 COPY ../../env ./env
-COPY . .
 
 # Build the Go application from the correct directory
-RUN go build -o main ./main.go
+RUN go build -o main ./services/transaction/main.go
 
 # Set the entry point to run the application
 CMD ["./main"]
