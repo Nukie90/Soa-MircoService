@@ -26,7 +26,7 @@ func (ar *AccountRoute) SetupAccountRoute(app *fiber.App) {
 		account.Put("/topup", ar.accountLogic.TopUp)
 		account.Put("/", ar.accountLogic.ChangePin)
 		account.Delete("/", ar.accountLogic.DeleteAccount)
-		//account.Get("/clientAcc", ar.accountLogic.GetClientAccount)
+		account.Post("/verify", ar.accountLogic.VerifyAccount)
 	}
 
 }

@@ -1,6 +1,7 @@
 package logic
 
 import (
+	"errors"
 	"fmt"
 	"microservice/entity"
 	"microservice/services/account/model"
@@ -479,5 +480,76 @@ func (as *AccountService) ChangePin(ctx *fiber.Ctx) error {
 
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message": "PIN changed successfully",
+	})
+}
+
+// VerifyAccount godoc
+//
+// @Summary     Verify account
+// @Description Verify the account by ID and PIN
+// @Tags        account
+// @Accept      json
+// @Produce     json
+// @Security    Bearer
+// @Param       verifyAccount body model.AccountVerify true "Verify account information"
+// @Router      /account/verify [post]
+func (as *AccountService) VerifyAccount(ctx *fiber.Ctx) error {
+	var verifyRequest model.AccountVerify
+
+	if err := ctx.BodyParser(&verifyRequest); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid request body",
+		})
+	}
+
+	// Get the token from the header
+	tokenHeader := ctx.Get("Authorization")
+	if tokenHeader == "" {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
+	token, err := jwt.Parse(tokenHeader, func(token *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv("JWT_SECRET")), nil
+	})
+	if err != nil {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Invalid token",
+		})
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Invalid token",
+		})
+	}
+
+	userID := claims["id"].(string)
+
+	// Fetch the account
+	var account entity.Account
+	result := as.db.Where("id = ? AND user_id = ?", verifyRequest.ID, userID).First(&account)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"error": "Account not found",
+			})
+		}
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": result.Error.Error(),
+		})
+	}
+
+	// Verify the PIN
+	if !shared.CheckPasswordHash(verifyRequest.Pin, account.Pin) {
+		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Invalid PIN",
+		})
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Account verified",
 	})
 }
