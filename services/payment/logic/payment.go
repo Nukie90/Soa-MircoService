@@ -83,42 +83,6 @@ func (ps *PaymentService) GetPaymentByID(ctx *fiber.Ctx) error {
 	})
 }
 
-// // CreatePayment godoc
-// //
-// // @Summary		Create payment
-// // @Description	Create payment
-// // @Tags			payment
-// // @Accept			json
-// // @Produce		json
-// // @Security		Bearer
-// // @Param			payment body model.CreatePayment true "Payment information"
-// // @Router			/payment/ [post]
-// func (ps *PaymentService) CreatePayment(ctx *fiber.Ctx) error {
-// 	var createPayment model.CreatePayment
-// 	if err := ctx.BodyParser(&createPayment); err != nil {
-// 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-// 			"error": err.Error(),
-// 		})
-// 	}
-
-// 	payment := entity.Payment{
-// 		SourceAccountID: createPayment.SourceAccountID,
-// 		ReferenceCode:   createPayment.ReferenceCode,
-// 		Amount:          createPayment.Amount,
-// 	}
-
-// 	result := ps.db.Create(&payment)
-// 	if result.Error != nil {
-// 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-// 			"error": result.Error.Error(),
-// 		})
-// 	}
-
-// 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
-// 		"payment": payment,
-// 	})
-// }
-
 // CreatePayment godoc
 //
 // @Summary		Create payment
@@ -217,6 +181,6 @@ func (ps *PaymentService) CreatePayment(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"message": "Payment completed successfully",
+		"payment": createPayment,
 	})
 }

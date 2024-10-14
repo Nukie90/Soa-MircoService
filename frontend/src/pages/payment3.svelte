@@ -6,13 +6,18 @@
   // Get data from location state
   const { payment, userFullName } = history.state || {};
 
-  let tx = payment.payment;
-  // Function to format date to the desired format
-  function formatDate(dateString) {
-    const date = new Date(dateString);
-    // Convert to ISO string and remove milliseconds and timezone info
-    let newDate = date.toISOString().split(".")[0].split("T");
-    return newDate[1] + " - " + newDate[0];
+  let tx = payment;
+
+  function CurrentTime() {
+    let date = new Date();
+    let year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+    let hour = date.getHours();
+    let minute = date.getMinutes();
+    let second = date.getSeconds();
+    let time = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+    return time;
   }
 
   console.log(tx);
@@ -27,7 +32,7 @@
     <div class="flex flex-col items-center">
       <img src={Succ} class="h-18 w-28" alt="HoneyLemonLogo" />
       <span class="text-black text-xl mt-2">Successful</span>
-      <span class="text-gray-400 text-sm mt-2">{formatDate(tx.CreatedAt)}</span>
+      <span class="text-gray-400 text-sm mt-2">{CurrentTime()}</span>
     </div>
     <div class="flex items-center justify-between">
       <Label class="space-y-2">
@@ -35,7 +40,7 @@
       </Label>
       <Label class="space-y-2 flex flex-col mt-8">
         <span class="text-xl text-[#28A745]">{userFullName}</span>
-        <span class="text-base text-[#666666]">{tx.AccountID}</span>
+        <span class="text-base text-[#666666]">{tx.SourceAccountID}</span>
       </Label>
     </div>
     <div class="flex items-center justify-between">
@@ -43,7 +48,7 @@
         <span class="text-black text-xl">RefCode:</span>
       </Label>
       <Label class="space-y-2 flex flex-col mt-8">
-        <span class="text-base text-[#666666]">{tx.RefCode}</span>
+        <span class="text-base text-[#666666]">{tx.ReferenceCode}</span>
       </Label>
     </div>
     <div class="flex items-center justify-between">

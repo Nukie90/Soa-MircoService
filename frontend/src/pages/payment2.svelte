@@ -19,7 +19,7 @@
   const fromAccountNumber = get(currentAccount);
 
   onMount(() => {
-    token = getCookie("esb_token");
+    token = getCookie("Authorization");
     if (token) {
       fetchData(token);
     }
@@ -28,29 +28,19 @@
   async function fetchData(token) {
     try {
       // Set the token as a cookie
-      document.cookie = `esb_token=${token}; path=/;`;
-
-      const accResponse = await axios.get(
-        "http://127.0.0.1:4000/esb/accounts/clientAcc",
-        {
-          withCredentials: true, // Ensure credentials are sent with the request
-          headers: {
-            esb_token: `Bearer ${token}`,
-          },
-        }
-      );
+      document.cookie = `Authorization=${token}; path=/;`;
 
       const userResponse = await axios.get(
-        "http://127.0.0.1:4000/esb/clients/info",
+        "http://127.0.0.1:3000/api/v1/users/me",
         {
           withCredentials: true, // Ensure credentials are sent with the request
           headers: {
-            esb_token: `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
-      userFullName = userResponse.data.name;
+      userFullName = userResponse.data.user.name;
       //   const selectedAccount = accountData.length > 0 ? accountData[0] : null;
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -81,15 +71,15 @@
   async function handleTransactionConfirm() {
     try {
       const verifyResponse = await axios.post(
-        "http://127.0.0.1:4000/esb/accounts/verifyPin",
+        "http://127.0.0.1:3000/api/v1/account/verify",
         {
-          accountID: fromAccountNumber,
+          id: fromAccountNumber,
           pin: enteredPin,
         },
         {
           withCredentials: true,
           headers: {
-            esb_token: `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -99,23 +89,23 @@
         // PIN verified successfully, proceed with transaction creation
         try {
           const paymentResponse = await axios.post(
-            "http://127.0.0.1:4000/esb/payments/create",
+            "http://127.0.0.1:3000/api/v1/payment/",
             {
-              accountID: fromAccountNumber,
-              refCode: receiverAccountNumber,
+              sourceAccountID: fromAccountNumber,
+              referenceCode: receiverAccountNumber,
               amount: parseFloat(amount),
             },
             {
               withCredentials: true,
               headers: {
-                esb_token: `Bearer ${token}`,
+                Authorization: `Bearer ${token}`,
               },
             }
           );
 
           // Handle transaction response if needed
-          if (paymentResponse.status === 200) {
-            let payment = paymentResponse.data;
+          if (paymentResponse.status === 201) {
+            const payment = paymentResponse.data.payment;
             console.log(payment);
 
             navigate("/payment3", {
@@ -128,11 +118,11 @@
             alert("Payment failed with status: " + paymentResponse.status);
             enteredPin = "";
           }
-        } catch (transactionError) {
+        } catch (paymentError) {
           alert(
             "Error creating transaction: " +
-              (transactionError.response?.data?.message ||
-                transactionError.message)
+              (paymentError.response?.data?.message ||
+                paymentError.message)
           );
           enteredPin = "";
         }

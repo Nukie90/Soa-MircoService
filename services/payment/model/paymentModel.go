@@ -5,6 +5,7 @@ type PaymentInfo struct {
 	SourceAccountID string
 	ReferenceCode   string
 	Amount          float64
+	CreateAt 	  string
 }
 
 type CreatePayment struct {
