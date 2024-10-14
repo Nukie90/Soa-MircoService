@@ -49,24 +49,9 @@
   }
 
   async function handleLogout() {
-    try {
-      const response = await axios.get("http://localhost:4000/esb/logout", {
-        withCredentials: true, // Include cookies with the request
-      });
-
       // Clear the token cookie
-      document.cookie =
-        "Authorization=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
-
-      if (response.status === 200) {
-        console.log("Logout successful:", response.data);
-        navigate("/");
-      } else {
-        console.error("Logout failed:", response.status);
-      }
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
+      document.cookie = "Authorization=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+      navigate("/")
   }
 </script>
 

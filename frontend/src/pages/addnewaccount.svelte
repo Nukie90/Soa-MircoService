@@ -11,7 +11,7 @@
     // Check for the presence of a specific cookie
     const cookies = document.cookie.split(";").map((cookie) => cookie.trim());
     const authCookie = cookies.find((cookie) =>
-      cookie.startsWith("esb_token=")
+      cookie.startsWith("Authorization=")
     );
 
     loggedIn = !!authCookie;
@@ -36,7 +36,7 @@
   function registerAccount(event) {
     event.preventDefault();
 
-    let token = getCookie("esb_token");
+    let token = getCookie("Authorization");
     console.log("token", token);
 
     // Validate pin length
@@ -52,7 +52,10 @@
       return;
     }
 
-    axios.post("http://127.0.0.1:4000/esb/accounts/create", {
+    console.log(event.target.acctype.value);
+    console.log(pin);    
+
+    axios.post("http://127.0.0.1:3000/api/v1/account/", {
       type: event.target.acctype.value,
       pin: pin,
     },
@@ -60,7 +63,7 @@
       withCredentials: true,
       headers: {
         "Content-Type": "application/json",
-        esb_token: `Bearer ${token}`,
+        Authorization: token,
       }
     }
   )

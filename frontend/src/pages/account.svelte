@@ -151,7 +151,6 @@
       .then((response) => {
         console.log("Account deleted successfully:", response.data);
         alert("Account deleted successfully.");
-        location.reload(); // Reload the page to reflect the changes
       })
       .catch((error) => {
         console.error("Error deleting account:", error);
