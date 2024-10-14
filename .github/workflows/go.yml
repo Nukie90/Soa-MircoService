@@ -27,6 +27,20 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
 
+      - name: Create ENV file
+        run: |
+          mkdir -p env
+          echo "DB_COMPUTE_ID=${{ secrets.DB_COMPUTE_ID }}" > env/.env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> env/.env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> env/.env
+          echo "AUTH_COMPUTE_ID=${{ secrets.AUTH_COMPUTE_ID }}" >> env/.env
+          echo "AUTH_PASSWORD=${{ secrets.AUTH_PASSWORD }}" >> env/.env
+          echo "AUTH_NAME=${{ secrets.AUTH_NAME }}" >> env/.env
+          echo "USER_NAME=${{ secrets.USER_NAME }}" >> env/.env
+          echo "ACCOUNT_NAME=${{ secrets.ACCOUNT_NAME }}" >> env/.env
+          echo "TRANSACTION_NAME=${{ secrets.TRANSACTION_NAME }}" >> env/.env
+          echo "PAYMENT_NAME=${{ secrets.PAYMENT_NAME }}" >> env/.env
+      
       - name: Display Go version
         run: go version
 
@@ -35,3 +49,12 @@ jobs:
 
       - name: Build
         run: go build -v ./...
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Docker Compose Build
+        run: |
+          docker compose up --build
+          docker compose ps
+          docker compose down
