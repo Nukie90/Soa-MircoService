@@ -25,8 +25,9 @@ jobs:
         run: go mod tidy
       - name: Build
         run: go build -v ./...
-      - name: Docker compose
+      - name: Setup Docker Compose
         uses: docker/compose-cli-action@v0.1.1
+      - name: Docker Compose
         run: |
           docker compose up --build
           docker compose ps
