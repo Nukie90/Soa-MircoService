@@ -5,7 +5,7 @@
   // Get data from location state
   const { transaction, senderName, receiverName } = history.state || {};
 
-  let tx = transaction.transaction
+  let tx = transaction
   // Function to format date to the desired format
   function formatDate(dateString) {
     const date = new Date(dateString);
@@ -25,7 +25,7 @@
   <form class="flex flex-col space-y-6">
     <div class="flex flex-col items-center">
       <span class="text-black text-xl mt-2">Successful</span>
-      <span class="text-gray-400 text-sm mt-2">{formatDate(tx.CreatedAt)}</span>
+      <span class="text-gray-400 text-sm mt-2">{tx.CreatedAt}</span>
     </div>
     <div class="flex items-center justify-between">
       <Label class="space-y-2">
@@ -33,7 +33,7 @@
       </Label>
       <Label class="space-y-2 flex flex-col mt-8">
         <span class="text-xl text-[#28A745]">{senderName}</span>
-        <span class="text-base text-[#666666]">{tx.SenderID}</span>
+        <span class="text-base text-[#666666]">{tx.SourceAccountID}</span>
       </Label>
     </div>
     <div class="flex items-center justify-between">
@@ -42,7 +42,7 @@
       </Label>
       <Label class="space-y-2 flex flex-col">
         <span class="text-xl text-[#28A745]">{receiverName}</span>
-        <span class="text-base text-[#666666]">{tx.ReceiverID}</span>
+        <span class="text-base text-[#666666]">{tx.DestinationAccountID}</span>
       </Label>
     </div>
     <div class="flex items-center justify-between">

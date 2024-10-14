@@ -58,25 +58,27 @@
       senderName = userResponse.data.user.name;
 
       const receiverAccount = await axios.get(
-        "http://127.0.0.1:4000/esb/accounts/account/" + receiverAccountNumber,
+        "http://127.0.0.1:3000/api/v1/account/id/" + receiverAccountNumber,
         {
           withCredentials: true, // Ensure credentials are sent with the request
           headers: {
-            esb_token: `Bearer ${token}`,
+            Authorization: `${token}`,
           },
         }
       );
       
+      console.log(receiverAccount);
+      
       const receiverAccountName = await axios.get(
-        "http://127.0.0.1:4000/esb/clients/" + receiverAccount.data.clientID,
+        "http://127.0.0.1:3000/api/v1/users/all/" + receiverAccount.data.accounts[0].UserID,
         {
           withCredentials: true, // Ensure credentials are sent with the request
           headers: {
-            esb_token: `Bearer ${token}`,
+            Authorization: `${token}`,
           },
         }
       );
-      receiverName = receiverAccountName.data.name;
+      receiverName = receiverAccountName.data.user.name;
       //   const selectedAccount = accountData.length > 0 ? accountData[0] : null;
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -103,15 +105,15 @@
   async function handleTransactionConfirm() {
     try {
       const verifyResponse = await axios.post(
-        "http://127.0.0.1:4000/esb/accounts/verifyPin",
+        "http://127.0.0.1:3000/api/v1/account/verify",
         {
-          accountID: fromAccountNumber,
+          id: fromAccountNumber,
           pin: enteredPin,
         },
         {
           withCredentials: true,
           headers: {
-            esb_token: `Bearer ${token}`,
+            Authorization: `${token}`,
           },
         }
       );
@@ -121,28 +123,52 @@
         // PIN verified successfully, proceed with transaction creation
         try {
           const transactionResponse = await axios.post(
-            "http://127.0.0.1:4000/esb/transactions/create",
+            "http://127.0.0.1:3000/api/v1/transaction",
             {
-              senderID: fromAccountNumber,
-              receiverID: receiverAccountNumber,
+              SourceAccountID: fromAccountNumber,
+              DestinationAccountID: receiverAccountNumber,
               amount: parseFloat(amount),
             },
             {
               withCredentials: true,
               headers: {
-                esb_token: `Bearer ${token}`,
+                Authorization: `${token}`,
               },
             }
           );
 
           // Handle transaction response if needed
-          if (transactionResponse.status === 200) {
+          if (transactionResponse.status === 201) {
             let transaction = transactionResponse.data
             console.log(transaction);
+          function getFormattedTime() {
+
+            const now = new Date();
+
+            const pad = (num) => String(num).padStart(2, '0'); // Add leading zero if needed
+
+            const hours = pad(now.getHours());
+            const minutes = pad(now.getMinutes());
+            const seconds = pad(now.getSeconds());
+
+            const day = pad(now.getDate());
+            const month = pad(now.getMonth() + 1); // Months are 0-indexed
+            const year = String(now.getFullYear()).slice(-2); // Last two digits of the year
+
+            return `${hours}:${minutes}:${seconds}, ${day}-${month}-${year}`;
+          }
+
+          console.log(getFormattedTime());
+
             
             navigate("/transfer3", {
               state: {
-                transaction,
+                transaction: {
+                SourceAccountID: fromAccountNumber,
+                DestinationAccountID: receiverAccountNumber,
+                Amount: parseFloat(amount),
+                CreatedAt: getFormattedTime()
+                },
                 senderName,
                 receiverName
               },

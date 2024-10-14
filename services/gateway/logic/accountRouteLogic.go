@@ -53,7 +53,7 @@ func ForwardGetAllAccount(ctx *fiber.Ctx) error {
 // @Router			/account/{id} [get]
 func ForwardGetAccountByID(ctx *fiber.Ctx) error {
 	fmt.Println("calling account service")
-	resp, err := http.Get("http://account-service:3200/api/v1/account/" + ctx.Params("id"))
+	resp, err := http.Get("http://account-service:3200/api/v1/account/id/" + ctx.Params("id"))
 	if err != nil {
 		return err
 	}
