@@ -40,12 +40,6 @@
   async function signup(event) {
     event.preventDefault();
 
-    // Validate ID card length
-    if (idcard.length != 13) {
-      alert("ID card is not correct");
-      return;
-    }
-
     // Validate password and confirm password match
     if (password !== confirmpassword) {
       alert("Passwords do not match");
@@ -60,12 +54,12 @@
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:4000/esb/register", // Corrected URL
+        "http://127.0.0.1:3000/api/v1/auth/signup", // Corrected URL
         {
           id: idcard,
           name: fullname,
           address: address,
-          birthDate: birthdate,
+          birth_date: birthdate,
           password: password,
         },
         {
