@@ -181,6 +181,8 @@ func ForwardChangePin(ctx *fiber.Ctx) error {
 	req.Header.Set("Authorization", tokenString)
 	req.Header.Set("Content-Type", "application/json")
 
+	fmt.Println(req.Header)
+
 	resp, err := account.Do(req)
 	if err != nil {
 		return err

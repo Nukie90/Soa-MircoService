@@ -27,8 +27,8 @@ type AccountBalance struct {
 
 type ChangePin struct {
 	ID     string `json:"id"`
-	OldPin string `json:"oldPin"`
-	NewPin string `json:"newPin"`
+	OldPin string `json:"old_in"`
+	NewPin string `json:"new_in"`
 }
 
 type DeleteAccount struct {

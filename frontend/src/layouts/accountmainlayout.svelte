@@ -17,7 +17,7 @@
   currentUser.subscribe(value => {
     user = value;
 
-  const token = getCookie('esb_token');
+  const token = getCookie('Authorization');
   if (token) {
     fetchData(token);
     }
@@ -32,12 +32,12 @@
   async function fetchData(token) {
     try {
       // Set the token as a cookie
-      document.cookie = `esb_token=${token}; path=/;`;
+      document.cookie = `Authorization=${token}; path=/;`;
 
-      const userResponse = await axios.get('http://127.0.0.1:4000/esb/clients/info', {
+      const userResponse = await axios.get('http://127.0.0.1:3000/api/v1/users/me', {
         withCredentials: true, // Ensure credentials are sent with the request
         headers: {
-          'esb_token': `Bearer ${token}`
+          'Authorization': `${token}`
         }
       });
 
@@ -56,7 +56,7 @@
 
       // Clear the token cookie
       document.cookie =
-        "esb_token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+        "Authorization=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
 
       if (response.status === 200) {
         console.log("Logout successful:", response.data);
@@ -83,7 +83,7 @@
     <Avatar class="acs mr-12" src="{AccountLogo}" />
     <Dropdown class="bg-[#F0F0F0] rounded shadow-lg" triggeredBy=".acs">
       <DropdownHeader class="bg-[#28A745] p-4 rounded-t-lg">
-        <span class="block text-sm text-white dark:text-white">{userData ? userData.name : "User"}</span>
+        <span class="block text-sm text-white dark:text-white">{userData ? userData.user.name : "User"}</span>
       </DropdownHeader>
       <DropdownDivider class="my-2 border-t border-gray-300" />
       <DropdownItem class="bg-white hover:bg-slate-50 px-4 py-2 text-gray-700">

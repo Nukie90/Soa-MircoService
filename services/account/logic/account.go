@@ -403,6 +403,8 @@ func (as *AccountService) ChangePin(ctx *fiber.Ctx) error {
 		})
 	}
 
+	fmt.Printf("Change pin request: %s, %s, %s\n", changePinRequest.ID, changePinRequest.OldPin, changePinRequest.NewPin)
+
 	// Get the token from the header
 	tokenHeader := ctx.Get("Authorization")
 	if tokenHeader == "" {

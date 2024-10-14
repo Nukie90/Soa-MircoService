@@ -215,6 +215,35 @@ paths:
       summary: Forward get account by ID request to account service
       tags:
       - account
+  /account/getAccountsByUserID:
+    get:
+      consumes:
+      - application/json
+      description: Forward get accounts by user ID request to account service
+      parameters:
+      - description: User ID
+        in: query
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of accounts
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "404":
+          description: Accounts not found
+          schema:
+            type: string
+      summary: Forward get accounts by user ID request to account service
+      tags:
+      - account
   /account/topup:
     put:
       consumes:

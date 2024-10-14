@@ -17,7 +17,7 @@
     // Check for the presence of a specific cookie
     const cookies = document.cookie.split(";").map((cookie) => cookie.trim());
     const authCookie = cookies.find((cookie) =>
-      cookie.startsWith("esb_token=")
+      cookie.startsWith("Authorization=")
     );
 
     loggedIn = !!authCookie;
@@ -47,12 +47,17 @@
       return;
     }
 
-    axios.patch(`http://127.0.0.1:4000/esb/accounts/update`, {
+    console.log(`${document.cookie.split("=")[1]}`);
+
+    axios.put(`http://127.0.0.1:3000/api/v1/account/`, {
       id: accountId,
-      oldPin: pin,
-      newPin: newpin,
+      old_pin: pin,
+      new_pin: newpin,
     }, {
       withCredentials: true,
+      headers: {
+        Authorization: `${document.cookie.split("=")[1]}`,
+      },
     })
     .then((response) => {
       console.log(response);
