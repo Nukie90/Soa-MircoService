@@ -10,6 +10,7 @@
 *.dll
 *.so
 *.dylib
+*.DS_Store
 
 /services/user/tmp
 
