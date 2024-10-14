@@ -34,7 +34,7 @@
       user = value;
     });
 
-    token = getCookie("esb_token");
+    token = getCookie("Authorization");
     if (token) {
       fetchData(token);
     }
@@ -43,29 +43,19 @@
   async function fetchData(token) {
     try {
       // Set the token as a cookie
-      document.cookie = `esb_token=${token}; path=/;`;
-
-      const accResponse = await axios.get(
-        "http://127.0.0.1:4000/esb/accounts/clientAcc",
-        {
-          withCredentials: true, // Ensure credentials are sent with the request
-          headers: {
-            esb_token: `Bearer ${token}`,
-          },
-        }
-      );
+      document.cookie = `Authorization=${token}; path=/;`;
 
       const userResponse = await axios.get(
-        "http://127.0.0.1:4000/esb/clients/info",
+        "http://127.0.0.1:3000/api/v1/users/me",
         {
           withCredentials: true, // Ensure credentials are sent with the request
           headers: {
-            esb_token: `Bearer ${token}`,
+            Authorization: `${token}`,
           },
         }
       );
 
-      senderName = userResponse.data.name;
+      senderName = userResponse.data.user.name;
 
       const receiverAccount = await axios.get(
         "http://127.0.0.1:4000/esb/accounts/account/" + receiverAccountNumber,
