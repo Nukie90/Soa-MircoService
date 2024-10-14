@@ -35,11 +35,3 @@ jobs:
 
       - name: Build
         run: go build -v ./...
-
-      - name: Docker Compose and Integration Test
-        run: |
-          docker compose version
-          docker compose up -d --build
-          docker compose ps
-          # Add any integration tests here
-          docker compose down
