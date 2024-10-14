@@ -45,10 +45,7 @@ jobs:
 
       - name: Docker Compose Build
         run: |
-          docker compose up --build
-      
-      - name: Restart Docker Compose
-        run: |
+          docker compose up -d --build
           docker compose down
           docker compose up
 
@@ -56,4 +53,3 @@ jobs:
         run: |
           docker compose ps
           docker compose down
-        
