@@ -138,11 +138,14 @@
     }
 
     axios
-      .delete("http://127.0.0.1:4000/esb/accounts/delete", {
+      .delete("http://127.0.0.1:3000/api/v1/account/", {
         withCredentials: true, // Ensure credentials are sent with the request
         data: {
           id: selectedAccount.ID, // Pass the selected account ID
           pin: enteredPin, // Pass the entered PIN
+        },
+        Headers: {
+          Authorization: `${document.cookie.split("=")[1]}`,
         },
       })
       .then((response) => {
