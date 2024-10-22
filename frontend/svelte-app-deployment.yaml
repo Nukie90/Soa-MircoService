@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: svelte-app-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: svelte-app
+  template:
+    metadata:
+      labels:
+        app: svelte-app
+    spec:
+      containers:
+      - name: svelte-app
+        image: front-end/svelte-app:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 5000

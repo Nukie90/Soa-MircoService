@@ -1,0 +1,21 @@
+.idea
+
+*.air.toml
+
+*.env
+
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.DS_Store
+
+/services/user/tmp
+
+/services/gateway/tmp
+
+/services/account/tmp
+
+/services/auth/tmp

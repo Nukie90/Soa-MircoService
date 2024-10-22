@@ -1,0 +1,569 @@
+basePath: /api/v1
+definitions:
+  model.AccountVerify:
+    properties:
+      id:
+        type: string
+      pin:
+        type: string
+    type: object
+  model.ChangePin:
+    properties:
+      id:
+        type: string
+      newPin:
+        type: string
+      oldPin:
+        type: string
+    type: object
+  model.CreateAccount:
+    properties:
+      balance:
+        type: number
+      pin:
+        type: string
+      type:
+        type: string
+    type: object
+  model.CreatePayment:
+    properties:
+      amount:
+        type: number
+      referenceCode:
+        type: string
+      sourceAccountID:
+        type: string
+    type: object
+  model.CreateTransaction:
+    properties:
+      amount:
+        type: number
+      destinationAccountID:
+        type: string
+      sourceAccountID:
+        type: string
+    type: object
+  model.DeleteAccount:
+    properties:
+      id:
+        type: string
+      pin:
+        type: string
+    type: object
+  model.Login:
+    properties:
+      id:
+        example: "111"
+        type: string
+      password:
+        example: password
+        type: string
+    type: object
+  model.SignUp:
+    properties:
+      address:
+        example: Bangkok
+        type: string
+      birth_date:
+        example: "2004-01-02"
+        type: string
+      id:
+        example: "111"
+        type: string
+      name:
+        example: John Doe
+        type: string
+      password:
+        example: password
+        type: string
+    type: object
+  model.TopUp:
+    properties:
+      amount:
+        type: number
+      id:
+        type: string
+    type: object
+host: 127.0.0.1:3000
+info:
+  contact:
+    email: nukie.nxk@gmail.com
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is the API Gateway service API documentation
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: API Gateway Service
+  version: "1.0"
+paths:
+  /account/:
+    delete:
+      consumes:
+      - application/json
+      description: Forward delete account request to account service
+      parameters:
+      - description: Delete account information
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/model.DeleteAccount'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Account deleted successfully
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Forward delete account request to account service
+      tags:
+      - account
+    get:
+      consumes:
+      - application/json
+      description: Forward get all account request to account service
+      produces:
+      - application/json
+      responses: {}
+      summary: Forward get all account request to account service
+      tags:
+      - account
+    post:
+      consumes:
+      - application/json
+      description: Forward create account request to account service
+      parameters:
+      - description: Account information
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateAccount'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Account created successfully
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Forward create account request to account service
+      tags:
+      - account
+    put:
+      consumes:
+      - application/json
+      description: Forward change pin request to account service
+      parameters:
+      - description: Change pin information
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/model.ChangePin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Pin changed successfully
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Forward change pin request to account service
+      tags:
+      - account
+  /account/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Forward get account by ID request to account service
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Account
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+      summary: Forward get account by ID request to account service
+      tags:
+      - account
+  /account/getAccountsByUserID:
+    get:
+      consumes:
+      - application/json
+      description: Forward get accounts by user ID request to account service
+      parameters:
+      - description: User ID
+        in: query
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of accounts
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "404":
+          description: Accounts not found
+          schema:
+            type: string
+      summary: Forward get accounts by user ID request to account service
+      tags:
+      - account
+  /account/topup:
+    put:
+      consumes:
+      - application/json
+      description: Forward top up request to account service
+      parameters:
+      - description: Top up information
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/model.TopUp'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Top up successfully
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Forward top up request to account service
+      tags:
+      - account
+  /account/verify:
+    post:
+      consumes:
+      - application/json
+      description: Forward verify account request to account service
+      parameters:
+      - description: Account verify information
+        in: body
+        name: account
+        required: true
+        schema:
+          $ref: '#/definitions/model.AccountVerify'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Account verified successfully
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Forward verify account request to account service
+      tags:
+      - account
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Forward login request to user service
+      parameters:
+      - description: User information
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/model.Login'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User logged in successfully
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+      summary: Forward login request to user service
+      tags:
+      - auth
+  /auth/signup:
+    post:
+      consumes:
+      - application/json
+      description: Forward signup request to user service
+      parameters:
+      - description: User information
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/model.SignUp'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User created successfully
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+      summary: Forward signup request to user service
+      tags:
+      - auth
+  /auth/token:
+    get:
+      consumes:
+      - application/json
+      description: Get token from header
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Token
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+      summary: Get token
+      tags:
+      - auth
+  /payment/:
+    get:
+      consumes:
+      - application/json
+      description: Forward get all payment request to payment service
+      produces:
+      - application/json
+      responses: {}
+      summary: Forward get all payment request to payment service
+      tags:
+      - payment
+    post:
+      consumes:
+      - application/json
+      description: Forward create payment request to payment service
+      parameters:
+      - description: Payment information
+        in: body
+        name: payment
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreatePayment'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Payment created successfully
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Forward create payment request to payment service
+      tags:
+      - payment
+  /payment/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Forward get payment by ID request to payment service
+      parameters:
+      - description: Payment ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Payment information
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Forward get payment by ID request to payment service
+      tags:
+      - payment
+  /transaction/:
+    get:
+      consumes:
+      - application/json
+      description: Forward get all transaction request to transaction service
+      produces:
+      - application/json
+      responses: {}
+      summary: Forward get all transaction request to transaction service
+      tags:
+      - transaction
+    post:
+      consumes:
+      - application/json
+      description: Forward create transaction request to transaction service
+      parameters:
+      - description: Transaction information
+        in: body
+        name: transaction
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateTransaction'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Transaction created successfully
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Forward create transaction request to transaction service
+      tags:
+      - transaction
+  /transaction/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Forward get transaction by ID request to transaction service
+      parameters:
+      - description: Transaction ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Transaction information
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Forward get transaction by ID request to transaction service
+      tags:
+      - transaction
+  /users/all:
+    get:
+      consumes:
+      - application/json
+      description: Forward get all users request to user service
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Users
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+      summary: Forward get all users request to user service
+      tags:
+      - user
+  /users/all/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Forward get user by ID request to user service
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+      summary: Forward get user by ID request to user service
+      tags:
+      - user
+  /users/me:
+    get:
+      consumes:
+      - application/json
+      description: Forward get me request to user service
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+      security:
+      - Bearer: []
+      summary: Forward get me request to user service
+      tags:
+      - user
+swagger: "2.0"

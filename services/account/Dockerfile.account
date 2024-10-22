@@ -1,0 +1,25 @@
+# Set the base image
+FROM golang:1.23-alpine
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy go.mod and go.sum files to the working directory
+COPY ../../go.mod ../../go.sum ./
+
+# Download necessary Go modules
+RUN go mod download
+
+# Copy the entire `user` directory
+COPY services/account/ ./services/account
+
+# Copy the `db` and `shared` directories outside the `transaction` directory
+COPY ../../shared ./shared
+COPY ../../entity ./entity
+COPY ../../env ./env
+
+# Build the Go application from the correct directory
+RUN go build -o main ./services/account/main.go
+
+# Set the entry point to run the application
+CMD ["./main"]

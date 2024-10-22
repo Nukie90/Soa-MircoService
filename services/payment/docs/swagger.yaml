@@ -1,0 +1,73 @@
+basePath: /api/v1
+definitions:
+  model.CreatePayment:
+    properties:
+      amount:
+        type: number
+      referenceCode:
+        type: string
+      sourceAccountID:
+        type: string
+    type: object
+host: 127.0.0.1:3400
+info:
+  contact:
+    email: nukie.nxk@gmail.com
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is the Payment service API documentation
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Payment Service
+  version: "1.0"
+paths:
+  /payment/:
+    get:
+      consumes:
+      - application/json
+      description: Get all payment
+      produces:
+      - application/json
+      responses: {}
+      summary: Get all payment
+      tags:
+      - payment
+    post:
+      consumes:
+      - application/json
+      description: Create a new payment between accounts
+      parameters:
+      - description: Payment information
+        in: body
+        name: payment
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreatePayment'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - Bearer: []
+      summary: Create payment
+      tags:
+      - payment
+  /payment/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get payment by ID
+      parameters:
+      - description: Payment ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: Get payment by ID
+      tags:
+      - payment
+swagger: "2.0"

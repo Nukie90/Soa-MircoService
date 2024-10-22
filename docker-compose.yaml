@@ -1,0 +1,102 @@
+version: '3.8'
+
+services:
+
+  gateway-service:
+    build:
+      context: .
+      dockerfile: services/gateway/Dockerfile.gateway
+    container_name: gateway-service
+    ports:
+      - "3000:3000"
+    env_file: "./env/.env"
+    environment:
+        - NATS_URL=nats://nats:4222
+    depends_on:
+      - nats
+
+  user-service:
+    build:
+      context: .
+      dockerfile: services/user/Dockerfile.user
+    container_name: user-service
+    ports:
+      - "3100:3100"
+    env_file: "./env/.env"
+    environment:
+      - NATS_URL=nats://nats:4222
+    depends_on:
+      - nats
+
+  account-service:
+    build:
+      context: .
+      dockerfile: services/account/Dockerfile.account
+    container_name: account-service
+    ports:
+      - "3200:3200"
+    env_file: "./env/.env"
+    environment:
+      - NATS_URL=nats://nats:4222
+    depends_on:
+      - nats
+
+  transaction-service:
+    build:
+      context: .
+      dockerfile: services/transaction/Dockerfile.transaction
+    container_name: transaction-service
+    ports:
+      - "3300:3300"
+    env_file: "./env/.env"
+    environment:
+      - NATS_URL=nats://nats:4222
+    depends_on:
+      - nats
+
+  payment-service:
+    build:
+      context: .
+      dockerfile: services/payment/Dockerfile.payment
+    container_name: payment-service
+    ports:
+      - "3400:3400"
+    env_file: "./env/.env"
+    environment:
+      - NATS_URL=nats://nats:4222
+    depends_on:
+      - nats
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: services/auth/Dockerfile.auth
+    container_name: auth-service
+    ports:
+      - "3500:3500"
+    env_file: "./env/.env"
+    environment:
+      - NATS_URL=nats://nats:4222
+    depends_on:
+      - nats
+
+  frontend-service:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile.frontend
+    container_name: frontend-service
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5000:5000"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    command: npm run dev
+
+  nats:
+    image: nats
+    container_name: nats
+    ports:
+      - "4222:4222"
+    command: ["-js"]  # Enables JetStream
