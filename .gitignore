@@ -19,3 +19,7 @@
 /services/account/tmp
 
 /services/auth/tmp
+
+.env
+
+/.gomodcache
